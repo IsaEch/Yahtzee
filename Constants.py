@@ -1,0 +1,25 @@
+import pygame
+pygame.init()
+# Screen
+SCREEN_WIDTH = 1400
+SCREEN_HEIGHT = 800
+CAPTION = "YAHTZEE"
+BACKGROUND_COLOR = (50, 205, 50)
+
+# Colors
+WHITE_COLOR = (255, 255, 255)
+BLACK_COLOR = (0, 0, 0)
+
+# Font
+FONT_SIZE = 20
+FONT = pygame.font.Font(None, FONT_SIZE)
+CELL_WIDTH = 50
+CELL_HEIGHT = 50
+
+# Score_Card
+SCORE_CARD_COLOR = (255, 255, 255)
+SCORE_CARD_X_Y = 10
+SCORE_CARD_OFFSET = 25
+SC_DESC_OFFSET = 100
+
+
