@@ -28,6 +28,9 @@ class YahtzeeGame(object):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_started = False
+                for button in self.buttons:
+                    if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
+                        print("Button clicked")
             self.draw_game()
             pygame.display.flip()
 
