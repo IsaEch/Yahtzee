@@ -2,6 +2,7 @@ from Player import Player
 import Constants as C
 from Text import Text
 from Button import Button
+from Dice import Dice
 import pygame
 
 
@@ -9,7 +10,7 @@ class YahtzeeGame(object):
 
     def __init__(self):
         self.players = [Player("Jack")]
-        self.current_player = 0
+        self.current_player = 0  # Index of the current player
         self.game_started = False
         self.game_finished = False
         self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
@@ -18,7 +19,20 @@ class YahtzeeGame(object):
                                 C.PLAYER_Y)
         pygame.display.set_caption(C.CAPTION)
         pygame.display.background = C.BACKGROUND_COLOR
-        self.buttons = []
+        self.buttons = [Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.BUTTON_WIDTH, C.BUTTON_HEIGHT, "Roll", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR)]
+        self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
+        self.dice = []
+        # Craete the dice objects and add them to the sprite group
+        for n in range(5):
+            if n < 3:
+                x = C.DICE_X + n * 60
+                y = C.DICE_Y
+            else:
+                x = C.DICE_X + 60
+                y = C.DICE_Y + 60
+            di = Dice(x, y)
+            self.dice.append(di)
+            self.dice_sprites.add(di)
 
     def start_game(self):
         self.create_buttons()
@@ -31,6 +45,7 @@ class YahtzeeGame(object):
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
                         print("Button clicked")
+            self.dice_sprites.update()
             self.draw_game()
             pygame.display.flip()
 
@@ -89,6 +104,7 @@ class YahtzeeGame(object):
             else:
                 button.color = C.WHITE_COLOR
             button.draw(self.screen)
+        self.dice_sprites.draw(self.screen)
 
     def create_buttons(self):
         """Creates the buttons that the user can use to select the category for each round"""
