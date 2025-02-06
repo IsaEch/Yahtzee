@@ -1,2 +1,5 @@
+from YahtzeeGame import YahtzeeGame
+
 if __name__ == '__main__':
-    print("Hello World")
+    game = YahtzeeGame()
+    game.start_game()

@@ -19,17 +19,21 @@ class YahtzeeGame(object):
                                 C.PLAYER_Y)
         pygame.display.set_caption(C.CAPTION)
         pygame.display.background = C.BACKGROUND_COLOR
-        self.buttons = [Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.BUTTON_WIDTH, C.BUTTON_HEIGHT, "Roll", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR)]
+        self.roll_button = Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.ROLL_WIDTH, C.ROLL_HEIGHT, "Roll",
+                               C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
+        self.hold_button = Button(C.HOLD_BUTTON_X, C.HOLD_BUTTON_Y, C.HOLD_WIDTH, C.HOLD_HEIGHT, "Hold", C.FONT,
+                                  C.GREY_COLOR, C.WHITE_COLOR)
+        self.buttons = [self.roll_button, self.hold_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
         self.dice = []
         # Craete the dice objects and add them to the sprite group
         for n in range(5):
             if n < 3:
-                x = C.DICE_X + n * 60
+                x = C.DICE_X + n * (C.DICE_OFFSET + C.DICE_WIDTH)
                 y = C.DICE_Y
             else:
-                x = C.DICE_X + 60
-                y = C.DICE_Y + 60
+                x = C.DICE_X + n * C.DICE_OFFSET
+                y = C.DICE_Y + 100
             di = Dice(x, y)
             self.dice.append(di)
             self.dice_sprites.add(di)
@@ -45,16 +49,35 @@ class YahtzeeGame(object):
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
                         print("Button clicked")
+                        if button == self.roll_button:
+                            for die in self.dice:
+                                die.start_animation()
             self.dice_sprites.update()
             self.draw_game()
             pygame.display.flip()
 
     def draw_game(self):
+        """Draws the game on the screen"""
         # Local variable to hold the current score_card to iterate through
         card = self.players[self.current_player].score_card
         # Draw the score_card
         pygame.draw.rect(self.screen, C.SCORE_CARD_COLOR, (C.SCORE_CARD_X, C.SCORE_CARD_Y, C.SCREEN_WIDTH//2,
                                                            C.SCREEN_HEIGHT - C.SC_BACKGROUND_OFFSET))
+        # Draw the buttons on the screen
+        for button in self.buttons:
+            # Change the button color when hovered to yellow
+            if button.is_hovered() and button != (self.roll_button or button != self.hold_button):
+                button.color = C.HOVER_COLOR
+                # Change the roll or hold button color to light grey when hovered
+            elif button.is_hovered() and (button == self.roll_button or button == self.hold_button):
+                button.color = C.LIGHT_GREY_COLOR
+                # Change the scorecard button color back to white when not hovered
+            elif button != self.roll_button and button != self.hold_button:  # Roll button is always grey
+                button.color = C.WHITE_COLOR
+                # Change the roll or hold button color back to a darker grey when not hovered
+            else:
+                button.color = C.GREY_COLOR  # Changes the scorecard buttons black to white
+            button.draw(self.screen)
 
         # Draw the grid
         for row in range(card.length() + 3):
@@ -93,18 +116,17 @@ class YahtzeeGame(object):
                 y = C.CELL_HEIGHT * row + C.SCORE_CARD_OFFSET + C.VALUES_OFFSET
                 self.screen.blit(cell_text, (x, y))
 
+        # Draw the hold box
+        pygame.draw.rect(self.screen, C.RED_COLOR, (C.HOLD_BOX_X,
+                                                    C.HOLD_BOX_Y, C.HOLD_BOX_WIDTH,
+                                                    C.HOLD_BOX_HEIGHT + 100))
         # Draw the yahtzee name
         self.game_name.draw(self.screen)
         # Draw the player name
         self.player_name.draw(self.screen)
-        # Draw the buttons on the screen
-        for button in self.buttons:
-            if button.is_hovered():
-                button.color = C.HOVER_COLOR
-            else:
-                button.color = C.WHITE_COLOR
-            button.draw(self.screen)
+        # Draw the dice
         self.dice_sprites.draw(self.screen)
+
 
     def create_buttons(self):
         """Creates the buttons that the user can use to select the category for each round"""
@@ -113,7 +135,8 @@ class YahtzeeGame(object):
         y = C.SCORE_CARD_Y + C.SCORE_CARD_OFFSET + C.BUTTON_Y_OFFSET
         # Creates 13 buttons for the 13 rounds/categories
         for n in range(13):
-            b = Button(x, y, C.BUTTON_WIDTH, C.CELL_HEIGHT, "", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR)
+            b = Button(x, y, C.BUTTON_WIDTH, C.CELL_HEIGHT, "", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR,
+                       transparent=True)
             # Moves the button down to the next section since the totals are not clicked
             if n == 5:
                 y += C.SPLIT

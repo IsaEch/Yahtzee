@@ -4,7 +4,7 @@ import pygame
 class Button(object):
 
     def __init__(self, x: int, y: int, width: int, height: int, text: str, font: pygame.font, color: tuple,
-                 text_color: tuple, disabled=False):
+                 text_color: tuple, disabled=False, transparent=False):
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, width, height)
@@ -13,13 +13,16 @@ class Button(object):
         self.color = color
         self.text_color = text_color
         self.disabled = disabled
+        self.transparent = transparent
 
     def draw(self, screen: pygame.Surface):
         """Draws the buttons for each category on the screen but transparently"""
-
         button = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
         # Set the button color to be transparent
-        button.fill((*self.color, 128))
+        if self.transparent:
+            button.fill((*self.color, 128))
+        else:
+            button.fill(self.color)
         screen.blit(button, self.rect)
 
         # Render the text
