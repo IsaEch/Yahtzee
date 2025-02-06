@@ -5,13 +5,14 @@ import Constants as C
 
 class Dice(pygame.sprite.Sprite):
 
-    def __init__(self, x:int, y: int):
+    def __init__(self, x: int, y: int):
         super().__init__()
-        # self.dice_sheet = pygame.image.load("images/dice_sheet5.png").convert_alpha()
-        self.frames = self.load_frames()
+        self.x = x
+        self.y = y
+        self.frames = self.load_frames()    # Load the dice frames (1, 2, 3, 4, 5, 6; 6 sides of a dice)
         self.current_frame = 0
-        self.image = self.frames[self.current_frame]
-        self.rect = self.image.get_rect(center=(C.DICE_X, C.DICE_Y))
+        self.image = self.frames[self.current_frame]    # Shows the current side of the dice
+        self.rect = self.image.get_rect(center=(x, y))  # Position of the dice on the screen
         self.animation_speed = C.ANIMATION_SPEED    # Adjust the animation speed
         self.last_update = pygame.time.get_ticks()
         self.animation_running = False # Set to False to stop the animation
