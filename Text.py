@@ -12,3 +12,7 @@ class Text(object):
         """Draw the text onto the screen at the x and y coordinates from the constructor"""
         text_surface = self.font.render(self.message, True, self.color)
         screen.blit(text_surface, (self.x, self.y))
+
+    def update_message(self, message):
+        """Update the message to be displayed"""
+        self.message = message

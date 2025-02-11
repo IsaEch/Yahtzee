@@ -1,5 +1,5 @@
+import random
 import pygame
-
 import Constants as C
 
 
@@ -15,8 +15,9 @@ class Dice(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))  # Position of the dice on the screen
         self.animation_speed = C.ANIMATION_SPEED    # Adjust the animation speed
         self.last_update = pygame.time.get_ticks()
-        self.animation_running = False # Set to False to stop the animation
+        self.animation_running = False  # Set to False to stop the animation
         self.held = False
+        self.value = -1
 
     def load_frames(self):
         """Load the dice frames from the dice sheet to be used in the animation"""
@@ -46,3 +47,12 @@ class Dice(pygame.sprite.Sprite):
         self.animation_running = False
         self.current = frame - 1
         self.image = self.frames[self.current]
+
+    def roll(self):
+        """Roll the dice and stop the animation on a frame that matches the random int"""
+        self.value = random.randint(1, 6)
+        return self.value
+
+    def is_clicked(self):
+        """Check if the dice is clicked"""
+        return self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]
