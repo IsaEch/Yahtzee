@@ -26,20 +26,16 @@ class YahtzeeGame(object):
                                C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
         self.buttons = [self.roll_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
-        self.dice = []
+        self.dice = []  # List to hold the dice objects that can be rolled
+        self.main_coordinates = [(945, 150), (1055, 150), (1165, 150), (995, 250), (1105, 250)]
+        self.hold_coordinates = [(850, 675), (960, 675), (1070, 675), (1180, 675), (1290, 675)]
+        self.hold_box = []    # List to hold the hold boxes for the dice
         # The text object that displays the message onto the screen
-        self.game_text = Text("This is filler game text", C.MESSAGE_SIZE, C.BLACK_COLOR, C.MESSAGE_X, C.MESSAGE_Y)
+        self.game_text = Text("This is filler game text", C.MESSAGE_SIZE, C.WHITE_COLOR, C.MESSAGE_X, C.MESSAGE_Y)
+        self.roll_counter_text = Text("Roll 1", C.MESSAGE_SIZE, C.BLACK_COLOR, C.ROLL_COUNTER_X, C.ROLL_COUNTER_Y)
         # Create the dice objects and add them to the sprite group
         for n in range(5):
-            if n < 3:   # First row of dice
-                x = C.DICE_X + n * (C.DICE_OFFSET + C.DICE_WIDTH)
-                y = C.DICE_Y
-            elif n == 3:   # Second row of dice; 4th dice
-                x = C.DICE_X + C.DICE_OFFSET
-                y = C.DICE_Y + C.DICE_Y_OFFSET
-            else:       # Second row of dice; 5th dice
-                x = C.DICE_X + C.DICE_WIDTH + 2*C.DICE_OFFSET
-                y = C.DICE_Y + C.DICE_Y_OFFSET
+            x, y = self.main_coordinates[n]
             di = Dice(x, y)   # Create the dice object
             self.dice.append(di)    # Add the dice object to the list; use to access dice methods
             self.dice_sprites.add(di)   # Add the dice object to the sprite group; used for animation
@@ -59,8 +55,10 @@ class YahtzeeGame(object):
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
                         print("Button clicked")     # Placeholder for now; Used for testing
-                        if button == self.roll_button:
-                            self.game_text.update_message("Rolling the dice. Roll #" + str(self.current_roll + 1))
+                        if button == self.roll_button and not button.disabled:
+                            button.disabled = True
+                            self.game_text.update_message("Rolling the dice.")
+                            self.roll_counter_text.update_message("Roll " + str(self.current_roll + 1))
                             self.add_roll_count()
                             # Random amount of time to roll the dice
                             self.wait_time = random.randint(1000, 3000)
@@ -70,14 +68,29 @@ class YahtzeeGame(object):
                             for die in self.dice:
                                 die.start_animation()
                 for die in self.dice:
-                    if die.is_clicked():
-                        print("Dice click works")
-                # Wait for a random number of seconds from 1-3 to stop the animation and show values
-                if self.rolling_dice and (pygame.time.get_ticks() - self.start_time) >= self.wait_time:
-                    self.game_text.update_message("Dice rolled")
-                    self.rolling_dice = False
-                    for die in self.dice:
-                        die.stop_animation(die.roll())
+                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
+                        self.hold_die(die)  # Hold the die
+                        # Update the remaining rolling dice positions
+                        self.update_dice_positions(self.hold_box, self.hold_coordinates)
+                        # Update the hold dice positions
+                        self.update_dice_positions(self.dice, self.main_coordinates)
+                for die in self.hold_box:
+                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
+                        self.release_die(die)
+                        # Update the remaining rolling dice positions
+                        self.update_dice_positions(self.hold_box, self.hold_coordinates)
+                        # Update the hold dice positions
+                        self.update_dice_positions(self.dice, self.main_coordinates)
+            # Wait for a random number of seconds from 1-3 to stop the animation and show values
+            if self.rolling_dice and (pygame.time.get_ticks() - self.start_time) >= self.wait_time:
+                self.game_text.update_message("Dice rolled")
+                self.rolling_dice = False
+                if self.current_roll == 3:
+                    self.game_text.update_message("Select a category")
+                else:
+                    self.roll_button.disabled = False
+                for die in self.dice:
+                    die.stop_animation(die.roll())
             self.dice_sprites.update()
             self.draw_game()
             pygame.display.flip()
@@ -88,7 +101,7 @@ class YahtzeeGame(object):
         # Draw the hold box
         pygame.draw.rect(self.screen, C.RED_COLOR, (C.HOLD_BOX_X,
                                                     C.HOLD_BOX_Y, C.HOLD_BOX_WIDTH,
-                                                    C.HOLD_BOX_HEIGHT + 100))
+                                                    C.HOLD_BOX_HEIGHT))
         # Local variable to hold the current score_card to iterate through
         card = self.players[self.current_player].score_card
         # Draw the score_card
@@ -97,17 +110,18 @@ class YahtzeeGame(object):
         # Draw the buttons on the screen
         for button in self.buttons:
             # Change the button color when hovered to yellow
-            if button.is_hovered() and button != self.roll_button:
-                button.color = C.HOVER_COLOR
-                # Change the roll or hold button color to light grey when hovered
-            elif button.is_hovered() and button == self.roll_button:
-                button.color = C.LIGHT_GREY_COLOR
-                # Change the scorecard button color back to white when not hovered
-            elif button != self.roll_button:  # Roll button is always grey
-                button.color = C.WHITE_COLOR
-                # Change the roll or hold button color back to a darker grey when not hovered
-            else:
-                button.color = C.GREY_COLOR  # Changes the scorecard buttons black to white
+            if not button.disabled:
+                if button.is_hovered() and button != self.roll_button:
+                    button.color = C.HOVER_COLOR
+                    # Change the roll or hold button color to light grey when hovered
+                elif button.is_hovered() and button == self.roll_button:
+                    button.color = C.LIGHT_GREY_COLOR
+                    # Change the scorecard button color back to white when not hovered
+                elif button != self.roll_button:  # Roll button is always grey
+                    button.color = C.WHITE_COLOR
+                    # Change the roll or hold button color back to a darker grey when not hovered
+                else:
+                    button.color = C.GREY_COLOR  # Changes the scorecard buttons black to white
             button.draw(self.screen)
 
         # Draw the grid
@@ -156,6 +170,8 @@ class YahtzeeGame(object):
         self.dice_sprites.draw(self.screen)
         # Draw the game text
         self.game_text.draw(self.screen)
+        # Draw the roll counter text
+        self.roll_counter_text.draw(self.screen)
 
     def create_buttons(self):
         """Creates the buttons that the user can use to select the category for each round"""
@@ -176,7 +192,28 @@ class YahtzeeGame(object):
     def add_roll_count(self):
         """Updates the roll count for the current player"""
         self.current_roll += 1
+        
+    def hold_die(self, die):
+        """Sets the dice hold value to True and moves the dice into the hold_box list"""
+        die.held = True
+        self.hold_box.append(die)
+        self.dice.remove(die)
 
+    def release_die(self, die):
+        """Sets the dice hold value to False and moves the dice back into the dice list"""
+        die.held = False
+        self.dice.append(die)
+        self.hold_box.remove(die)
+
+    def update_dice_positions(self, dice_list, coord_list):
+        """Updates the dice positions on the screen based on the dice_list and coord_list so that there are not any
+        large gaps between dice"""
+        for n in range(len(dice_list)):     # Iterate through the dice_list
+            x, y = coord_list[n]    # Get the x and y coordinates from the coord_list
+            dice_list[n].x = x    # Set the x coordinate for the dice object
+            dice_list[n].y = y  # Set the y coordinate for the dice object
+            # Set the position of the dice object on the screen
+            dice_list[n].rect = dice_list[n].image.get_rect(center=(x, y))
 
 
 if __name__ == "__main__":
