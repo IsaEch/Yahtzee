@@ -1,5 +1,4 @@
 import random
-
 from Player import Player
 import Constants as C
 from Text import Text
@@ -55,6 +54,7 @@ class YahtzeeGame(object):
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
                         print("Button clicked")     # Placeholder for now; Used for testing
+                        print(self.get_roll_value())    # Placeholder for now; Used for testing
                         if button == self.roll_button and not button.disabled:
                             button.disabled = True
                             self.game_text.update_message("Rolling the dice.")
@@ -67,15 +67,15 @@ class YahtzeeGame(object):
                             self.rolling_dice = True
                             for die in self.dice:
                                 die.start_animation()
-                for die in self.dice:
-                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
+                for die in self.dice:   # Used to move the di from the main area to the hold box
+                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice:
                         self.hold_die(die)  # Hold the die
                         # Update the remaining rolling dice positions
                         self.update_dice_positions(self.hold_box, self.hold_coordinates)
                         # Update the hold dice positions
                         self.update_dice_positions(self.dice, self.main_coordinates)
-                for die in self.hold_box:
-                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
+                for die in self.hold_box:   # Used to move the die from the hold box to the main area
+                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice:
                         self.release_die(die)
                         # Update the remaining rolling dice positions
                         self.update_dice_positions(self.hold_box, self.hold_coordinates)
@@ -214,6 +214,10 @@ class YahtzeeGame(object):
             dice_list[n].y = y  # Set the y coordinate for the dice object
             # Set the position of the dice object on the screen
             dice_list[n].rect = dice_list[n].image.get_rect(center=(x, y))
+
+    def get_roll_value(self):
+        """Gets the value of the dice roll"""
+        return [die.value for die in self.dice_sprites]
 
 
 if __name__ == "__main__":
