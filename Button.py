@@ -11,6 +11,7 @@ class Button(object):
         self.text = text
         self.font = font
         self.color = color
+        self.button_name = ""
         self.text_color = text_color
         self.disabled = disabled
         self.transparent = transparent
