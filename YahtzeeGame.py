@@ -17,8 +17,8 @@ class YahtzeeGame(object):
         self.players = [Player("Jack")]
         self.current_player = 0  # Index of the current player
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
-        self.game_started = False
-        self.game_finished = False
+        self.game_started = True
+        self.round_played = False
         self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
         self.game_name = Text("YAHTZEE", C.FONT_SIZE,  C.BLACK_COLOR, C.YAHTZEE_X, C.YAHTZEE_Y)
         self.player_name = Text(self.players[self.current_player].name, C.FONT_SIZE, C.BLACK_COLOR, C.PLAYER_X,
@@ -52,7 +52,6 @@ class YahtzeeGame(object):
 
     def start_game(self):
         self.create_buttons()
-        self.game_started = True
         self.screen.fill(C.BACKGROUND_COLOR)
         while self.game_started:
             for event in pygame.event.get():
@@ -61,7 +60,6 @@ class YahtzeeGame(object):
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
                         print("Button clicked")     # Placeholder for now; Used for testing
-                        print(self.get_roll_value())    # Placeholder for now; Used for testing
                         if button == self.roll_button and not button.disabled:
                             button.disabled = True
                             self.game_text.update_message("Rolling the dice.")
@@ -74,8 +72,8 @@ class YahtzeeGame(object):
                             self.rolling_dice = True
                             for die in self.dice:   # Start the animation for each di
                                 die.start_animation()
-                        elif not button.disabled:
-                            self.score_category(button)
+                        elif not button.disabled and not self.round_played:
+                            self.score_category(button, self.players[self.current_player].score_card)
                             print("This is a category button")    # Placeholder for now; Used for testing
                 for die in self.dice:   # Used to move the di from the main area to the hold box
                     if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice:
@@ -123,7 +121,7 @@ class YahtzeeGame(object):
         for button in self.buttons:
             # Change the button color when hovered to yellow
             if not button.disabled:
-                if button.is_hovered() and button != self.roll_button:
+                if button.is_hovered() and button != self.roll_button and not self.round_played:
                     button.color = C.HOVER_COLOR
                     # Change the roll or hold button color to light grey when hovered
                 elif button.is_hovered() and button == self.roll_button:
@@ -134,6 +132,10 @@ class YahtzeeGame(object):
                     # Change the roll or hold button color back to a darker grey when not hovered
                 else:
                     button.color = C.GREY_COLOR  # Changes the scorecard buttons black to white
+            elif button.disabled and button != self.roll_button:
+                button.color = C.WHITE_COLOR
+            else:
+                button.color = C.LIGHT_GREY_COLOR
             button.draw(self.screen)
 
         # Draw the grid
@@ -237,9 +239,12 @@ class YahtzeeGame(object):
         """Gets the value of the dice roll"""
         return [die.value for die in self.dice_sprites]
 
-    def score_category(self, button):
+    def score_category(self, button: Button, card: object):
         """Handles the scoring and selection of the row for the scorecard so that the values can be updated
         appropriately"""
+        self.round_played = True    # Set to True to indicate that the round has been played and that the other
+        # categories cannot be selected
+        button.disabled = True  # Disable the button so that it can't be clicked again
         category_num = YahtzeeGame.button_names.index(button.button_name)
         if self.has_rolled:
             score = 0   # Placeholder for the score of the category
@@ -266,7 +271,15 @@ class YahtzeeGame(object):
                     score = 50
             elif category_num == 12:    # Chance
                 score = sum(dice_values)
+            # Update the category number to accurate reflect the rows in the score card
+            if category_num < 6:
+                category_num += 1
+            else:
+                category_num += 5
             # Update the score card
+            self.roll_button.disabled = True
+            card.set_category(category_num, score, dice_values)  # Set the category to filled
+
 
     def upper_section(self, dice_values, num):
         """Check if the dice values have a 3 or 4 of a kind"""
