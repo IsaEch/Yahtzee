@@ -6,7 +6,7 @@ class ScoreCard(object):
                         21: "GRAND TOTAL"}
     def __init__(self):
         """Creates a 2d list that represents the Yahtzee score card to keep track of the player's score. It also has a
-        dictionary that remebers when a category is filled"""
+        dictionary that remembers when a category is filled"""
         # Create a 2D list to store the scorecard
         self.score = [[0]*6 for _ in range(22)]
         for n in range(22):
@@ -27,10 +27,35 @@ class ScoreCard(object):
     def width(self):
         return len(self.score[0])
 
+    def set_category(self, category_row: int, score: int, dice_list: list):
+        """Set the score for a specific category on the scorecard and calls the update methods for the totals"""
+        for n in range(1, 6):
+            self.score[category_row][n] = dice_list[n-1]
+        self.filled[category_row] = True
+        # Update the total score for the corresponding section (upper or lower)
+        if category_row < 7:
+            self.update_upper_total(score)
+        else:
+            self.update_lower_total(score)
+        # Update the bonus for the upper section if the total score is greater than or equal to 63
+        self.update_bonus()
+
+    def update_upper_total(self, score: int):
+        """Update the upper total. Not the total score with bonus"""
+        self.score[7][1] += score
+
+    def update_lower_total(self, score: int):
+        """Update the lower total. Not the total score with bonus"""
+        self.score[20][1] += score
+
+    def update_bonus(self):
+        """Update the bonus for the upper section"""
+        if self.score[7][1] >= 63:
+            self.score[8][1] = 35
 
     def __str__(self):
+        """"Currently only using for debugging/development"""
         return f"{self.score}"
-
 
 
 if __name__ == '__main__':

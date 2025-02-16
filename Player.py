@@ -1,6 +1,5 @@
 from ScoreCard import ScoreCard
 
-
 class Player(object):
 
     def __init__(self, name: str):
@@ -8,3 +7,6 @@ class Player(object):
         self.score_card = ScoreCard()
         self.rolls_remaining = 3
         self.score = 0
+
+    def get_score_card(self):
+        return self.score_card
