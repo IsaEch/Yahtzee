@@ -17,7 +17,8 @@ class Button(object):
         self.transparent = transparent
 
     def draw(self, screen: pygame.Surface):
-        """Draws the buttons for each category on the screen but transparently"""
+        """Draws the buttons for each category and the roll button on the screen but the category buttons are
+        transparent"""
         button = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
         # Set the button color to be transparent
         if self.transparent:

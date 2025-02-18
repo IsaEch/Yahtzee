@@ -20,7 +20,7 @@ class Dice(pygame.sprite.Sprite):
         self.value = -1
 
     def load_frames(self):
-        """Load the dice frames from the dice sheet to be used in the animation"""
+        """Load the dice frames from the images to be used in the animation"""
         frames = []
         for n in range(1, 7):
             frame = pygame.image.load(f"images/dice{n}.png").convert_alpha()
@@ -30,7 +30,7 @@ class Dice(pygame.sprite.Sprite):
         return frames
 
     def update(self):
-        """Update the dice animation"""
+        """Update the dice animation. Controls the speed of the animation"""
         if self.animation_running:
             now = pygame.time.get_ticks()
             if now - self.last_update > self.animation_speed * 1000:

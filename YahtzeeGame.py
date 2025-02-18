@@ -51,6 +51,7 @@ class YahtzeeGame(object):
             self.wait_time = 0      # Placeholder for the amount of time to wait for the dice roll animation
 
     def start_game(self):
+        """The main game loop that control the entire game. It handles the events, updates, and drawing of the game"""
         self.create_buttons()
         self.screen.fill(C.BACKGROUND_COLOR)
         while self.game_started:
@@ -107,7 +108,7 @@ class YahtzeeGame(object):
 
     def draw_game(self):
         self.screen.fill(C.BACKGROUND_COLOR)
-        """Draws the game on the screen"""
+        """Draws all the buttons and rectangles for the game on the screen"""
         # Draw the hold box
         pygame.draw.rect(self.screen, C.RED_COLOR, (C.HOLD_BOX_X,
                                                     C.HOLD_BOX_Y, C.HOLD_BOX_WIDTH,
@@ -192,16 +193,18 @@ class YahtzeeGame(object):
         self.roll_counter_text.draw(self.screen)
 
     def create_buttons(self):
-        """Creates the buttons that the user can use to select the category for each round"""
+        """Creates the buttons for the scorecard that the user can use to select the category for each round.
+        Purposefully separated from draw game and the main game loop to prevent duplication of buttons and causing more
+        bugs."""
 
-        # Local variables to hold the x and y coordinates for the buttons
+        # Local variables to hold the x and y coordinates for the buttons; Makes it easier to read within this scope
         x = C.SCORE_CARD_X + C.SCORE_CARD_OFFSET - C.BUTTON_X_OFFSET
         y = C.SCORE_CARD_Y + C.SCORE_CARD_OFFSET + C.BUTTON_Y_OFFSET
         # Creates 13 buttons for the 13 rounds/categories
         for n in range(13):
             b = Button(x, y, C.BUTTON_WIDTH, C.CELL_HEIGHT, "", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR,
                        transparent=True)
-            b.button_name = YahtzeeGame.button_names[n]
+            b.button_name = YahtzeeGame.button_names[n]  # Button name to be used to determine the category when clicked
             # Moves the button down to the next section since the totals are not clicked
             if n == 5:
                 y += C.SPLIT
@@ -210,17 +213,18 @@ class YahtzeeGame(object):
             self.buttons.append(b)
 
     def add_roll_count(self):
-        """Updates the roll count for the current player"""
+        """Increases the roll count for the current player so that the player can only roll 3 times per turn"""
         self.current_roll += 1
         
     def hold_die(self, die):
-        """Sets the dice hold value to True and moves the dice into the hold_box list"""
+        """Sets the dice hold value to True and moves the dice into the hold_box list. The dice will not be rolled"""
         die.held = True
         self.hold_box.append(die)
         self.dice.remove(die)
 
     def release_die(self, die):
-        """Sets the dice hold value to False and moves the dice back into the dice list"""
+        """Sets the dice hold value back to False and moves the dice back into the dice list. The dice can be
+        rolled again"""
         die.held = False
         self.dice.append(die)
         self.hold_box.remove(die)
@@ -236,12 +240,12 @@ class YahtzeeGame(object):
             dice_list[n].rect = dice_list[n].image.get_rect(center=(x, y))
 
     def get_roll_value(self):
-        """Gets the value of the dice roll"""
+        """Gets the value of the dice roll to be used for scoring purposes"""
         return [die.value for die in self.dice_sprites]
 
     def score_category(self, button: Button, card: object):
         """Handles the scoring and selection of the row for the scorecard so that the values can be updated
-        appropriately"""
+        appropriately onto the scorecard"""
         self.round_played = True    # Set to True to indicate that the round has been played and that the other
         # categories cannot be selected
         button.disabled = True  # Disable the button so that it can't be clicked again
@@ -282,7 +286,7 @@ class YahtzeeGame(object):
 
 
     def upper_section(self, dice_values, num):
-        """Check if the dice values have a 3 or 4 of a kind"""
+        """Determines the score for the upper section of the score card and returns the score"""
         count = 0
         # Iterate through the dice values and count the number of times the value appears
         for value in dice_values:
@@ -298,18 +302,18 @@ class YahtzeeGame(object):
         return False
 
     def full_house(self, dice_values):
-        """Check if the dice values have a full house"""
+        """Checks if the dice values have a full house (set of 3 and 2)"""
         dice_values.sort()
         num1 = dice_values.count(dice_values[0])
         num2 = dice_values.count(dice_values[-1])
         return (num1 == 2 and num2 == 3) or (num1 == 3 and num2 == 2)
 
     def small_straight(self, dice_values):
-        """Check if the dice values have a small or large straight"""
+        """Checks if the dice values have a small or large straight"""
         return len(set(dice_values)) >= 4
 
     def large_straight(self, dice_values):
-        """Check if the dice values have a large straight"""
+        """Checks if the dice values have a large straight"""
         return len(set(dice_values)) == 5
 
 
