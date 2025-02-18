@@ -14,7 +14,7 @@ class YahtzeeGame(object):
                     "Yahtzee", "Chance"]
 
     def __init__(self):
-        self.players = [Player("Jack")]
+        self.players = [Player("Jack"), Player("Phoebe")]
         self.current_player = 0  # Index of the current player
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
         self.game_started = True
@@ -27,6 +27,7 @@ class YahtzeeGame(object):
         pygame.display.background = C.BACKGROUND_COLOR
         self.roll_button = Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.ROLL_WIDTH, C.ROLL_HEIGHT, "Roll",
                                C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
+        self.roll_button.button_name = "Roll"
         self.buttons = [self.roll_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
         self.dice = []  # List to hold the dice objects that can be rolled
@@ -35,8 +36,8 @@ class YahtzeeGame(object):
         self.hold_box = []    # List to hold the hold boxes for the dice
         # The text object that displays the message onto the screen
         self.game_text = Text("This is filler game text", C.MESSAGE_SIZE, C.WHITE_COLOR, C.MESSAGE_X,
-                              C.MESSAGE_Y)
-        self.roll_counter_text = Text("Roll 1", C.MESSAGE_SIZE, C.BLACK_COLOR, C.ROLL_COUNTER_X,
+                              C.MESSAGE_Y, centered=True)
+        self.roll_counter_text = Text("Roll 0", C.MESSAGE_SIZE, C.WHITE_COLOR, C.ROLL_COUNTER_X,
                                       C.ROLL_COUNTER_Y)
         self.has_rolled = False
         # Create the dice objects and add them to the sprite group
@@ -64,7 +65,6 @@ class YahtzeeGame(object):
                         if button == self.roll_button and not button.disabled:
                             button.disabled = True
                             self.game_text.update_message("Rolling the dice.")
-                            self.roll_counter_text.update_message("Roll " + str(self.current_roll + 1))
                             self.add_roll_count()
                             # Random amount of time to roll the dice
                             self.wait_time = random.randint(1000, 3000)
@@ -73,11 +73,12 @@ class YahtzeeGame(object):
                             self.rolling_dice = True
                             for die in self.dice:   # Start the animation for each di
                                 die.start_animation()
-                        elif not button.disabled and not self.round_played:
+                        elif not button.disabled and not self.round_played and self.has_rolled:
                             self.score_category(button, self.players[self.current_player].score_card)
                             print("This is a category button")    # Placeholder for now; Used for testing
                 for die in self.dice:   # Used to move the di from the main area to the hold box
-                    if die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice:
+                    if (die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice
+                            and self.has_rolled):
                         self.hold_die(die)  # Hold the die
                         # Update the remaining rolling dice positions
                         self.update_dice_positions(self.hold_box, self.hold_coordinates)
@@ -101,17 +102,18 @@ class YahtzeeGame(object):
                 for die in self.dice:
                     die.stop_animation(die.roll())
                 self.has_rolled = True  # Set to True to indicate that the dice have been rolled and can be scored
+            # Switch the player after the round has been played and after 2 seconds
+            if self.round_played and (pygame.time.get_ticks() - self.start_time) >= C.SWITCH_WAIT_TIME:
+                self.switch_player()
             self.dice_sprites.update()
             self.draw_game()
-
             pygame.display.flip()
 
     def draw_game(self):
         self.screen.fill(C.BACKGROUND_COLOR)
         """Draws all the buttons and rectangles for the game on the screen"""
         # Draw the hold box
-        pygame.draw.rect(self.screen, C.RED_COLOR, (C.HOLD_BOX_X,
-                                                    C.HOLD_BOX_Y, C.HOLD_BOX_WIDTH,
+        pygame.draw.rect(self.screen, C.RED_COLOR, (C.HOLD_BOX_X, C.HOLD_BOX_Y, C.HOLD_BOX_WIDTH,
                                                     C.HOLD_BOX_HEIGHT))
         # Local variable to hold the current score_card to iterate through
         card = self.players[self.current_player].score_card
@@ -139,12 +141,12 @@ class YahtzeeGame(object):
                 button.color = C.LIGHT_GREY_COLOR
             button.draw(self.screen)
 
-        # Draw the grid
+        # Draw the grid row
         for row in range(card.length() + 3):
             grid_y = C.CELL_HEIGHT * row + (C.SCORE_CARD_OFFSET*2 - C.SC_X_OFFSET)
             pygame.draw.line(self.screen, C.BLACK_COLOR, (C.SCORE_CARD_X + C.SC_GRID_OFFSET, grid_y),
                     (C.SCREEN_WIDTH//2 + C.SCORE_CARD_Y-C.GRID_Y_OFFSET, grid_y))
-
+        # Draw the grid columns
         for col in range(card.width() + 1):
             # 1st column has a different offset because it needs more room for text
             if col == 0:
@@ -170,8 +172,12 @@ class YahtzeeGame(object):
                 # Draw each cell value on the screen and push text to make space for the 1st column
                 if col == 0:
                     x = C.CELL_WIDTH * col + C.SCORE_CARD_OFFSET - C.COL_ONE_OFFSET
-                elif row == 10:
+                elif row == 10:     # Skip the 11th row because it is only the lower section title
                     continue
+                elif col == 6 and row == 0:  # Centers the text "score" in the cell
+                    x = (C.SCORE_CARD_X + C.SCORE_CARD_OFFSET + col * (C.SCREEN_WIDTH//2 - C.SCORE_COL_OFFSET
+                                                                       * C.SCORE_CARD_OFFSET)
+                         // card.width())
                 else:
                     # Adjust the x position to fit the card
                     x = (C.SCORE_CARD_X + C.SCORE_CARD_OFFSET + col * (C.SCREEN_WIDTH//2 - 2 * C.SCORE_CARD_OFFSET)
@@ -191,6 +197,8 @@ class YahtzeeGame(object):
         self.game_text.draw(self.screen)
         # Draw the roll counter text
         self.roll_counter_text.draw(self.screen)
+        # Update the roll counter text
+        self.roll_counter_text.update_message("Roll " + str(self.current_roll))
 
     def create_buttons(self):
         """Creates the buttons for the scorecard that the user can use to select the category for each round.
@@ -202,6 +210,7 @@ class YahtzeeGame(object):
         y = C.SCORE_CARD_Y + C.SCORE_CARD_OFFSET + C.BUTTON_Y_OFFSET
         # Creates 13 buttons for the 13 rounds/categories
         for n in range(13):
+            # Text and button names are different. Text displays on the screen. Name is used to match the category
             b = Button(x, y, C.BUTTON_WIDTH, C.CELL_HEIGHT, "", C.FONT, C.WHITE_COLOR, C.WHITE_COLOR,
                        transparent=True)
             b.button_name = YahtzeeGame.button_names[n]  # Button name to be used to determine the category when clicked
@@ -247,6 +256,7 @@ class YahtzeeGame(object):
         """Handles the scoring and selection of the row for the scorecard so that the values can be updated
         appropriately onto the scorecard"""
         self.round_played = True    # Set to True to indicate that the round has been played and that the other
+        self.start_time = pygame.time.get_ticks()
         # categories cannot be selected
         button.disabled = True  # Disable the button so that it can't be clicked again
         category_num = YahtzeeGame.button_names.index(button.button_name)
@@ -282,8 +292,7 @@ class YahtzeeGame(object):
                 category_num += 5
             # Update the score card
             self.roll_button.disabled = True
-            card.set_category(category_num, score, dice_values)  # Set the category to filled
-
+            card.set_category(category_num, score, dice_values)  # Set the category to filled and update the score
 
     def upper_section(self, dice_values, num):
         """Determines the score for the upper section of the score card and returns the score"""
@@ -315,6 +324,36 @@ class YahtzeeGame(object):
     def large_straight(self, dice_values):
         """Checks if the dice values have a large straight"""
         return len(set(dice_values)) == 5
+
+    def switch_player(self):
+        """Switches the player to the next player in the list"""
+        self.current_player += 1    # Increment the current player index
+        # Check if the current player index is out of bounds and reset if so
+        if self.current_player == len(self.players):
+            self.current_player = 0
+        player = self.players[self.current_player]  # Get the current player
+        self.player_name.update_message(player.name)   # Update player name on the scorecard
+        self.current_roll = 0   # Reset the current roll to 0
+        self.round_played = False   # Set to False to indicate that the round has not been played
+        self.has_rolled = False    # Set to False to indicate that the dice have not been rolled
+        self.roll_button.disabled = False
+        # Release any and all dice from the hold box
+        for die in self.hold_box[:]:  # This had a weird bug where 1 die would stay and [:] fixed it
+            self.release_die(die)
+        self.update_dice_positions(self.dice, self.main_coordinates)    # Update the dice positions for the main area
+        self.update_dice_positions(self.hold_box, self.hold_coordinates)    # Update the hold box positions
+
+        # Update the button disabled status to flect the new current player's score card
+        for button in self.buttons:
+            if button.button_name in YahtzeeGame.button_names: # Check if the button is a category button
+                # Get the category number to be used for index purposes
+                category_num = YahtzeeGame.button_names.index(button.button_name)
+                # Adjusts the category number to match the rows in the score card
+                if category_num < 6:
+                    category_num += 1
+                else:
+                    category_num += 5
+                button.disabled = player.score_card.filled[category_num]
 
 
 if __name__ == "__main__":
