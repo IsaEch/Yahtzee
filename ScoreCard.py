@@ -8,12 +8,13 @@ class ScoreCard(object):
         """Creates a 2d list that represents the Yahtzee score card to keep track of the player's score. It also has a
         dictionary that remembers when a category is filled"""
         # Create a 2D list to store the scorecard
-        self.score = [[0]*6 for _ in range(22)]
+        self.score = [[0]*7 for _ in range(22)]
         for n in range(22):
             if n < 22:
                 self.score[n][0] = ScoreCard.row_descriptions[n]
             if n < 5:
                 self.score[0][n+1] = n+1
+        self.score[0][6] = "Score"
         # Create a dictionary to keep track of which cells are filled so that they can't be filled again and so 0's
         # are not filled in before selecting a category
         self.filled = {i: True if i in [0, 7, 8, 9, 10, 19, 20, 21] else False for i in range(22)}
@@ -33,6 +34,7 @@ class ScoreCard(object):
         """Set the score for a specific category on the scorecard and calls the update methods for the totals"""
         for n in range(1, 6):
             self.score[category_row][n] = dice_list[n-1]
+        self.score[category_row][6] = score
         self.filled[category_row] = True
         # Update the total score for the corresponding section (upper or lower)
         if category_row < 7:
