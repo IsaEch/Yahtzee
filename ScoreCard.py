@@ -22,9 +22,11 @@ class ScoreCard(object):
         print(self.filled)  # Debugging/Development
 
     def length(self):
+        """Returns the length of the scorecard"""
         return len(self.score)
 
     def width(self):
+        """Returns the width of the scorecard"""
         return len(self.score[0])
 
     def set_category(self, category_row: int, score: int, dice_list: list):
@@ -41,15 +43,15 @@ class ScoreCard(object):
         self.update_bonus()
 
     def update_upper_total(self, score: int):
-        """Update the upper total. Not the total score with bonus"""
+        """Update the upper total. Not to be confused with the total score with bonus"""
         self.score[7][1] += score
 
     def update_lower_total(self, score: int):
-        """Update the lower total. Not the total score with bonus"""
+        """Update the lower total. Not to be confused with the total score with bonus"""
         self.score[20][1] += score
 
     def update_bonus(self):
-        """Update the bonus for the upper section"""
+        """Updates the bonus for the upper section"""
         if self.score[7][1] >= 63:
             self.score[8][1] = 35
 
