@@ -47,7 +47,6 @@ class ScoreCard(object):
     def update_upper_total(self, score: int):
         """Update the upper total. Not to be confused with the total score with bonus"""
         self.score[7][6] += score
-        print(self.score[7][1])
 
     def update_lower_total(self, score: int):
         """Update the lower total. Not to be confused with the total score with bonus"""
@@ -55,8 +54,8 @@ class ScoreCard(object):
 
     def update_bonus(self):
         """Updates the bonus for the upper section"""
-        if self.score[7][1] >= 63:
-            self.score[8][1] = 35
+        if self.score[7][6] >= 63:
+            self.score[8][6] = 35
 
     def __str__(self):
         """"Currently only using for debugging/development"""
