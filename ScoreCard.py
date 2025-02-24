@@ -46,7 +46,8 @@ class ScoreCard(object):
 
     def update_upper_total(self, score: int):
         """Update the upper total. Not to be confused with the total score with bonus"""
-        self.score[7][1] += score
+        self.score[7][6] += score
+        print(self.score[7][1])
 
     def update_lower_total(self, score: int):
         """Update the lower total. Not to be confused with the total score with bonus"""

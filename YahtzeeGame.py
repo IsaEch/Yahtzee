@@ -176,7 +176,7 @@ class YahtzeeGame(object):
                     cell_value = ""
                 if (col < 6 and col > 0) and (row > 6 and row < 10):
                     continue    # Skip the upper section totals so that they only have 1 cell to fill
-                if (col < 6 and col > 0) and row > 18:
+                if (col < 6 and col > 0) and row > 17:
                     continue   # Skip the lower section totals so that they only have 1 cell to fill
                 # Render the text
                 cell_text = C.FONT.render(cell_value, True, C.BLACK_COLOR)
@@ -284,7 +284,7 @@ class YahtzeeGame(object):
             score = 0   # Placeholder for the score of the category
             dice_values = self.get_roll_value()    # Get the values of the dice roll
             if category_num < 6:    # Upper section
-                score = self.upper_section(dice_values, category_num + 1)
+                score = self.upper_section(dice_values, category_num)
             elif category_num == 6:     # 3 of a kind
                 if self.of_a_kind(dice_values, 3):
                     score = sum(dice_values)
@@ -303,6 +303,7 @@ class YahtzeeGame(object):
             elif category_num == 11:    # Yahtzee
                 if self.of_a_kind(dice_values, 5):
                     score = 50
+                card.filled[18] = True
             elif category_num == 12:    # Chance
                 score = sum(dice_values)
             # Update the category number to accurate reflect the rows in the score card
