@@ -26,20 +26,24 @@ class YahtzeeGame(object):
         pygame.display.set_caption(C.CAPTION)
         pygame.display.background = C.BACKGROUND_COLOR
         self.roll_button = Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.ROLL_WIDTH, C.ROLL_HEIGHT, "Roll",
-                               C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
-        self.roll_button.button_name = "Roll"
-        self.buttons = [self.roll_button]
+                                C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
+        self.switch_button = Button(C.NEXT_BUTTON_X, C.NEXT_BUTTON_Y, C.NEXT_WIDTH, C.NEXT_HEIGHT, "Next", C.FONT,
+                                    C.GREY_COLOR, C.WHITE_COLOR, hidden=True)
+        self.buttons = [self.roll_button, self.switch_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
         self.dice = []  # List to hold the dice objects that can be rolled
         self.main_coordinates = [(945, 150), (1055, 150), (1165, 150), (995, 250), (1105, 250)]
         self.hold_coordinates = [(850, 675), (960, 675), (1070, 675), (1180, 675), (1290, 675)]
         self.hold_box = []    # List to hold the hold boxes for the dice
         # The text object that displays the message onto the screen
-        self.game_text = Text("This is filler game text", C.MESSAGE_SIZE, C.WHITE_COLOR, C.MESSAGE_X,
+        self.game_text = Text("Click roll to start the turn", C.MESSAGE_SIZE, C.WHITE_COLOR, C.MESSAGE_X,
                               C.MESSAGE_Y, centered=True)
         self.roll_counter_text = Text("Roll 0", C.MESSAGE_SIZE, C.WHITE_COLOR, C.ROLL_COUNTER_X,
                                       C.ROLL_COUNTER_Y)
         self.has_rolled = False
+        self.transitioning = False
+        self.next_player = Text("Next Player", C.MESSAGE_SIZE, C.WHITE_COLOR, C.SWITCH_MESSAGE_X,
+                                C.SWITCH_MESSAGE_Y, centered=True)
         # Create the dice objects and add them to the sprite group
         for n in range(5):
             x, y = self.main_coordinates[n]
@@ -104,6 +108,9 @@ class YahtzeeGame(object):
                 self.has_rolled = True  # Set to True to indicate that the dice have been rolled and can be scored
             # Switch the player after the round has been played and after 2 seconds
             if self.round_played and (pygame.time.get_ticks() - self.start_time) >= C.SWITCH_WAIT_TIME:
+                self.switch_button.hidden = False
+                self.switch_button.disabled = False
+            if self.switch_button.is_clicked():
                 self.switch_player()
             self.dice_sprites.update()
             self.draw_game()
@@ -127,10 +134,10 @@ class YahtzeeGame(object):
                 if button.is_hovered() and button != self.roll_button and not self.round_played:
                     button.color = C.HOVER_COLOR
                     # Change the roll or hold button color to light grey when hovered
-                elif button.is_hovered() and button == self.roll_button:
+                elif button.is_hovered() and (button == self.roll_button or button == self.switch_button):
                     button.color = C.LIGHT_GREY_COLOR
                     # Change the scorecard button color back to white when not hovered
-                elif button != self.roll_button:  # Roll button is always grey
+                elif button != self.roll_button and button != self.switch_button:  # Roll button is always grey
                     button.color = C.WHITE_COLOR
                     # Change the roll or hold button color back to a darker grey when not hovered
                 else:
@@ -167,6 +174,10 @@ class YahtzeeGame(object):
                     cell_value = str(card.score[row][col])
                 else:
                     cell_value = ""
+                if (col < 6 and col > 0) and (row > 6 and row < 10):
+                    continue    # Skip the upper section totals so that they only have 1 cell to fill
+                if (col < 6 and col > 0) and row > 17:
+                    continue   # Skip the lower section totals so that they only have 1 cell to fill
                 # Render the text
                 cell_text = C.FONT.render(cell_value, True, C.BLACK_COLOR)
                 # Draw each cell value on the screen and push text to make space for the 1st column
@@ -187,6 +198,16 @@ class YahtzeeGame(object):
                 y = C.CELL_HEIGHT * row + C.SCORE_CARD_OFFSET + C.VALUES_OFFSET
                 self.screen.blit(cell_text, (x, y))
 
+        # Cover1--Transparent rectangle to cover the sectios of the upper section that are not to be selected
+        transparent_rect = pygame.Surface((C.COVER1_WIDTH, C.COVER1_HEIGHT), pygame.SRCALPHA)
+        transparent_rect.fill((*C.GREY_COLOR, 128))  # 128 is the alpha value for 50% transparency
+        self.screen.blit(transparent_rect, (C.COVER1_X, C.COVER1_Y))
+
+        # Cover2--Transparent rectangle to cover the sections of the lower section that are not to be selected
+        transparent_rect = pygame.Surface((C.COVER2_WIDTH, C.COVER2_HEIGHT), pygame.SRCALPHA)
+        transparent_rect.fill((*C.GREY_COLOR, 128))  # 128 is the alpha value for 50% transparency
+        self.screen.blit(transparent_rect, (C.COVER2_X, C.COVER2_Y))
+
         # Draw the yahtzee name
         self.game_name.draw(self.screen)
         # Draw the player name
@@ -204,7 +225,6 @@ class YahtzeeGame(object):
         """Creates the buttons for the scorecard that the user can use to select the category for each round.
         Purposefully separated from draw game and the main game loop to prevent duplication of buttons and causing more
         bugs."""
-
         # Local variables to hold the x and y coordinates for the buttons; Makes it easier to read within this scope
         x = C.SCORE_CARD_X + C.SCORE_CARD_OFFSET - C.BUTTON_X_OFFSET
         y = C.SCORE_CARD_Y + C.SCORE_CARD_OFFSET + C.BUTTON_Y_OFFSET
@@ -264,7 +284,7 @@ class YahtzeeGame(object):
             score = 0   # Placeholder for the score of the category
             dice_values = self.get_roll_value()    # Get the values of the dice roll
             if category_num < 6:    # Upper section
-                score = self.upper_section(dice_values, category_num + 1)
+                score = self.upper_section(dice_values, category_num)
             elif category_num == 6:     # 3 of a kind
                 if self.of_a_kind(dice_values, 3):
                     score = sum(dice_values)
@@ -283,6 +303,7 @@ class YahtzeeGame(object):
             elif category_num == 11:    # Yahtzee
                 if self.of_a_kind(dice_values, 5):
                     score = 50
+                card.filled[18] = True
             elif category_num == 12:    # Chance
                 score = sum(dice_values)
             # Update the category number to accurate reflect the rows in the score card
@@ -343,9 +364,13 @@ class YahtzeeGame(object):
         self.update_dice_positions(self.dice, self.main_coordinates)    # Update the dice positions for the main area
         self.update_dice_positions(self.hold_box, self.hold_coordinates)    # Update the hold box positions
 
+        self.fill_screen_transition()    # Transition effect for the game
+        self.draw_next_player_name(player.name)    # Draw the next player's name on the screen
+        self.undo_screen_transition()    # Transition effect for the game
+
         # Update the button disabled status to flect the new current player's score card
         for button in self.buttons:
-            if button.button_name in YahtzeeGame.button_names: # Check if the button is a category button
+            if button.button_name in YahtzeeGame.button_names:  # Check if the button is a category button
                 # Get the category number to be used for index purposes
                 category_num = YahtzeeGame.button_names.index(button.button_name)
                 # Adjusts the category number to match the rows in the score card
@@ -354,6 +379,32 @@ class YahtzeeGame(object):
                 else:
                     category_num += 5
                 button.disabled = player.score_card.filled[category_num]
+
+    def fill_screen_transition(self):
+        """Creates a screen transition effect when switching players that gradually fills the screen with a color from
+        left to right to indicate the end of the round"""
+        # Fill the screen with a solid color from left to right
+        for n in range(C.SCREEN_WIDTH):
+            pygame.draw.rect(self.screen, C.BACKGROUND_COLOR, (0, 0, n, C.SCREEN_HEIGHT))
+            pygame.display.flip()
+
+    def undo_screen_transition(self):
+        """Undoes the screen transition effect bu gradually decreases the fill from left to right"""
+        self.switch_button.hidden = True    # Hide the switch button before the transition is complete
+        for n in range(C.SCREEN_WIDTH):
+            self.draw_game()    # Redraw the game to show the changes
+            # Draw the solid color decreases to finish animation effect
+            pygame.draw.rect(self.screen, C.BACKGROUND_COLOR, (n, 0, C.SCREEN_WIDTH - n, C.SCREEN_HEIGHT))
+            pygame.display.flip()
+
+    def draw_next_player_name(self, name: str):
+        """Draws the next player's name on the screen"""
+        message = "Next Player: " + name
+        self.next_player.update_message(message)   # Update the message to display the next player's name
+        self.next_player.draw(self.screen)
+        pygame.display.flip()
+        pygame.time.wait(C.NEXT_WAIT_TIME)    # Wait for 2 seconds before switching players
+
 
 
 if __name__ == "__main__":
