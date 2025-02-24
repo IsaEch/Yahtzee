@@ -4,37 +4,39 @@ import pygame
 class Button(object):
 
     def __init__(self, x: int, y: int, width: int, height: int, text: str, font: pygame.font, color: tuple,
-                 text_color: tuple, disabled=False, transparent=False):
+                 text_color: tuple, disabled=False, transparent=False, hidden=False):
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.font = font
         self.color = color
-        self.button_name = ""
+        self.button_name = " "
         self.text_color = text_color
         self.disabled = disabled
         self.transparent = transparent
+        self.hidden = hidden
 
     def draw(self, screen: pygame.Surface):
         """Draws the buttons for each category and the roll button on the screen but the category buttons are
         transparent"""
-        button = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-        # Set the button color to be transparent
-        if self.transparent:
-            button.fill((*self.color, 128))
-        else:
-            button.fill(self.color)
-        screen.blit(button, self.rect)
+        if not self.hidden:
+            button = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+            # Set the button color to be transparent
+            if self.transparent:
+                button.fill((*self.color, 128))
+            else:
+                button.fill(self.color)
+            screen.blit(button, self.rect)
 
-        # Render the text
-        text_surface = self.font.render(self.text, True, self.text_color)
+            # Render the text
+            text_surface = self.font.render(self.text, True, self.text_color)
 
-        # Center text inside the button
-        text_rect = text_surface.get_rect(center=self.rect.center)
+            # Center text inside the button
+            text_rect = text_surface.get_rect(center=self.rect.center)
 
-        # Draw the text
-        screen.blit(text_surface, text_rect)
+            # Draw the text
+            screen.blit(text_surface, text_rect)
 
     def is_clicked(self):
         # Check if the button is pressed, true if it is, false if it isn't
