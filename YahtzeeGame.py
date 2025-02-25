@@ -42,7 +42,8 @@ class YahtzeeGame(object):
                                       C.ROLL_COUNTER_Y)
         self.has_rolled = False
         self.transitioning = False
-        self.next_player = Text("Next Player", C.MESSAGE_SIZE, C.WHITE_COLOR, C.SWITCH_MESSAGE_X,
+        self.scored_yahztee = False
+        self.next_player = Text("Next Player", C.NEXT_SIZE, C.WHITE_COLOR, C.SWITCH_MESSAGE_X,
                                 C.SWITCH_MESSAGE_Y, centered=True)
         # Create the dice objects and add them to the sprite group
         for n in range(5):
@@ -283,6 +284,8 @@ class YahtzeeGame(object):
         if self.has_rolled:
             score = 0   # Placeholder for the score of the category
             dice_values = self.get_roll_value()    # Get the values of the dice roll
+            if self.scored_yahztee and self.of_a_kind(dice_values, 5):
+                card.add_yahztee_bonus()
             if category_num < 6:    # Upper section
                 score = self.upper_section(dice_values, category_num)
             elif category_num == 6:     # 3 of a kind
@@ -303,17 +306,32 @@ class YahtzeeGame(object):
             elif category_num == 11:    # Yahtzee
                 if self.of_a_kind(dice_values, 5):
                     score = 50
+                    # Set to True to indicate that a yahztee has been scored and allow for bonuses to be scored
+                    self.scored_yahztee = True
+                    # Iterate through the score card to check for bonuses for edge case. Yahtzee can be scored in a
+                    # different category before the Yahtzee category. Thus, the other categories must be checked after
+                    # filling a yahtzee in the yahtzee category
+                    for category in card.score:
+                        if category[1] == 0:
+                            continue
+                        elif self.of_a_kind(category[1:6], 5) and category[0] != "Yahtzee":
+                            card.add_yahztee_bonus()
+                # Set to True to indicate that the Yahtzee category has been filled and shows the yahtzee bonus value
+                # (even if it is 0)
                 card.filled[18] = True
             elif category_num == 12:    # Chance
                 score = sum(dice_values)
             # Update the category number to accurate reflect the rows in the score card
-            if category_num < 6:
+            if category_num < 6:    # Upper section
                 category_num += 1
             else:
-                category_num += 5
+                category_num += 5   # Lower section
             # Update the score card
             self.roll_button.disabled = True
             card.set_category(category_num, score, dice_values)  # Set the category to filled and update the score
+            card.update_grand_upper_total()    # Update the grand upper total
+            card.update_grand_total()
+
 
     def upper_section(self, dice_values, num):
         """Determines the score for the upper section of the score card and returns the score"""
@@ -405,7 +423,8 @@ class YahtzeeGame(object):
         pygame.display.flip()
         pygame.time.wait(C.NEXT_WAIT_TIME)    # Wait for 2 seconds before switching players
 
-
+    def update_total(self):
+        pass
 
 if __name__ == "__main__":
     game = YahtzeeGame()
