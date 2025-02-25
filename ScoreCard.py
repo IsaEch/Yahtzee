@@ -5,7 +5,7 @@ class ScoreCard(object):
                         17: "Chance", 18: "Yahtzee Bonus", 19: "TOTAL: Upper", 20: "TOTAL: Lower",
                         21: "GRAND TOTAL"}
     def __init__(self):
-        """Creates a 2d list that represents the Yahtzee score card to keep track of the player's score. It also has a
+        """Creates a 2d list that represents the Yahtzee scorecard to keep track of the player's score. It also has a
         dictionary that remembers when a category is filled"""
         # Create a 2D list to store the scorecard
         self.score = [[0]*7 for _ in range(22)]
@@ -14,7 +14,7 @@ class ScoreCard(object):
                 self.score[n][0] = ScoreCard.row_descriptions[n]
             if n < 5:
                 self.score[0][n+1] = n+1
-        self.score[0][6] = "Score"
+        self.score[0][6] = "Score"  # Set Column 6 as the score column
         # Create a dictionary to keep track of which cells are filled so that they can't be filled again and so 0's
         # are not filled in before selecting a category
         self.filled = {i: True if i in [0, 7, 8, 9, 10, 19, 20, 21] else False for i in range(22)}
@@ -48,14 +48,28 @@ class ScoreCard(object):
         """Update the upper total. Not to be confused with the total score with bonus"""
         self.score[7][6] += score
 
+    def update_grand_upper_total(self):
+        """Update the grand upper total"""
+        self.score[9][6] = self.score[7][6] + self.score[8][6]
+        self.score[19][6] = self.score[7][6] + self.score[8][6]
+
     def update_lower_total(self, score: int):
         """Update the lower total. Not to be confused with the total score with bonus"""
-        self.score[20][1] += score
+        self.score[20][6] += score
 
     def update_bonus(self):
         """Updates the bonus for the upper section"""
         if self.score[7][6] >= 63:
             self.score[8][6] = 35
+
+    def add_yahztee_bonus(self):
+        """Adds 100 points to the Yahtzee bonus"""
+        self.score[18][6] += 100
+        print("Yahtzee Bonus added", self.score[18][6])
+
+    def update_grand_total(self):
+        """Update the grand total of both upper and lower sections with bonuses"""
+        self.score[21][6] = self.score[19][6] + self.score[20][6] + self.score[18][6]
 
     def __str__(self):
         """"Currently only using for debugging/development"""
