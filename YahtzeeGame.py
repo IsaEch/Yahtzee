@@ -4,6 +4,7 @@ import Constants as C
 from Text import Text
 from Button import Button
 from Dice import Dice
+from Results import ResultsScreen
 import pygame
 
 
@@ -19,6 +20,7 @@ class YahtzeeGame(object):
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
         self.game_started = True
         self.round_played = False
+        self.game_finished = False
         self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
         self.game_name = Text("YAHTZEE", C.FONT_SIZE,  C.BLACK_COLOR, C.YAHTZEE_X, C.YAHTZEE_Y)
         self.player_name = Text(self.players[self.current_player].name, C.FONT_SIZE, C.BLACK_COLOR, C.PLAYER_X,
@@ -32,7 +34,7 @@ class YahtzeeGame(object):
         self.buttons = [self.roll_button, self.switch_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
         self.dice = []  # List to hold the dice objects that can be rolled
-        self.main_coordinates = [(945, 150), (1055, 150), (1165, 150), (995, 250), (1105, 250)]
+        self.main_coordinates = [(945, 200), (1055, 200), (1165, 200), (995, 300), (1105, 300)]
         self.hold_coordinates = [(850, 675), (960, 675), (1070, 675), (1180, 675), (1290, 675)]
         self.hold_box = []    # List to hold the hold boxes for the dice
         # The text object that displays the message onto the screen
@@ -112,7 +114,14 @@ class YahtzeeGame(object):
                 self.switch_button.hidden = False
                 self.switch_button.disabled = False
             if self.switch_button.is_clicked():
-                self.switch_player()
+                if self.check_score_card_filled():
+                    self.game_finished = True
+                    print("The game as finished")
+                    results_screen = ResultsScreen(self.screen, self.players)
+                    results_screen.draw()
+                else:
+                    self.switch_player()
+            # elif self.switch_button.is_clicked() and self.game_finished:
             self.dice_sprites.update()
             self.draw_game()
             pygame.display.flip()
@@ -221,6 +230,32 @@ class YahtzeeGame(object):
         self.roll_counter_text.draw(self.screen)
         # Update the roll counter text
         self.roll_counter_text.update_message("Roll " + str(self.current_roll))
+        # Draw the score_table
+        self.draw_score_table()
+
+    def draw_score_table(self):
+        """Draws a 2d table on the screen to display the total score for each player"""
+        num_players = len(self.players)
+        table_width = C.ST_CELL_WIDTH * num_players
+        table_height = C.ST_CELL_HEIGHT * 2
+        center_x = C.SCORE_TABLE_X  # Center the table on the screen
+        start_x = center_x - (table_width // 2)
+        start_y = C.SCORE_TABLE_Y
+
+        # Adjust the starting x-coordinate to center the box around the text
+        adjusted_start_x = start_x - C.FONT_SIZE
+
+        # Draw the white box behind the score table
+        pygame.draw.rect(self.screen, C.SCORE_CARD_COLOR, (adjusted_start_x, start_y, table_width + C.FONT_SIZE, table_height))
+
+        for index, player in enumerate(self.players):
+            # Get the first letter of the player's name
+            initial = player.name[0]    # Get the first letter of the player's name
+            initial_text = Text(initial, C.FONT_SIZE, C.BLACK_COLOR, start_x + index * C.ST_CELL_WIDTH, start_y)
+            # Get the player's score and draw it
+            score_text = Text(str(player.score_card.score[21][6]), C.FONT_SIZE, C.BLACK_COLOR, start_x + index * C.ST_CELL_WIDTH, start_y + C.ST_CELL_HEIGHT)
+            initial_text.draw(self.screen)
+            score_text.draw(self.screen)
 
     def create_buttons(self):
         """Creates the buttons for the scorecard that the user can use to select the category for each round.
@@ -423,8 +458,14 @@ class YahtzeeGame(object):
         pygame.display.flip()
         pygame.time.wait(C.NEXT_WAIT_TIME)    # Wait for 2 seconds before switching players
 
-    def update_total(self):
-        pass
+    def check_score_card_filled(self):
+        """Check if the score card is filled and the game is over"""
+        for player in self.players:
+            for row in player.score_card.filled:
+                if not player.score_card.filled[row]:
+                    return False
+        return True
+
 
 if __name__ == "__main__":
     game = YahtzeeGame()

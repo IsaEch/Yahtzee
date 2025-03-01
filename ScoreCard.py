@@ -49,7 +49,7 @@ class ScoreCard(object):
         self.score[7][6] += score
 
     def update_grand_upper_total(self):
-        """Update the grand upper total"""
+        """Update the grand upper total with bonus"""
         self.score[9][6] = self.score[7][6] + self.score[8][6]
         self.score[19][6] = self.score[7][6] + self.score[8][6]
 
