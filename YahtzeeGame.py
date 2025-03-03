@@ -117,8 +117,9 @@ class YahtzeeGame(object):
                 if self.check_score_card_filled():
                     self.game_finished = True
                     print("The game as finished")
+                    self.game_started = False
                     results_screen = ResultsScreen(self.screen, self.players)
-                    results_screen.draw()
+                    results_screen.game_loop()
                 else:
                     self.switch_player()
             # elif self.switch_button.is_clicked() and self.game_finished:

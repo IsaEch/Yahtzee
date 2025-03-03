@@ -15,10 +15,10 @@ class Text(object):
         if self.centered:
             text_width = text_surface.get_width()
             screen.blit(text_surface, (self.x - text_width // 2, self.y))
-            # screen.blit(text_surface, (self.x - len(self.message), self.y))
         else:
             screen.blit(text_surface, (self.x, self.y))
 
     def update_message(self, message):
         """Update the message to be displayed"""
         self.message = message
+
