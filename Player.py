@@ -5,8 +5,8 @@ class Player(object):
     def __init__(self, name: str):
         self.name = name
         self.score_card = ScoreCard()
-        self.rolls_remaining = 3
         self.score = 0
 
-    def get_score_card(self):
-        return self.score_card
+    def set_final_score(self):
+        """Set the final score for the player"""
+        self.score = self.score_card.score[21][6]
