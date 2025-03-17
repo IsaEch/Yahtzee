@@ -36,6 +36,10 @@ class TextBox(object):
                 # Update the text surface with the new text so that it doesn't appear blank
                 self.txt_surface = self.font.render(self.text, True, C.WHITE_COLOR)
 
+    def clear_text(self):
+        self.text = ''
+        self.txt_surface = self.font.render(self.text, True, C.WHITE_COLOR)
+
     def draw(self, screen):
         screen.blit(self.txt_surface, (self.rect.x + C.TEXTBOX_X_OFFSET, self.rect.y + C.TEXTBOX_Y_OFFSET))
         pygame.draw.rect(screen, self.color, self.rect, C.TEXT_BOX_WIDTH)

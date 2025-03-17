@@ -1,5 +1,5 @@
-from YahtzeeGame import YahtzeeGame
+from TitleScreen import Title
 
 if __name__ == '__main__':
-    game = YahtzeeGame()
-    game.start_game()
+    game = Title()
+    game.game_loop()

@@ -19,9 +19,6 @@ class ScoreCard(object):
         # are not filled in before selecting a category
         self.filled = {i: True if i in [0, 7, 8, 9, 10, 19, 20, 21] else False for i in range(22)}
 
-        print(self.score)   # Debugging/Development
-        print(self.filled)  # Debugging/Development
-
     def length(self):
         """Returns the length of the scorecard"""
         return len(self.score)
