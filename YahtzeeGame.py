@@ -14,14 +14,14 @@ class YahtzeeGame(object):
                     "Small Straight", "Large Straight",
                     "Yahtzee", "Chance"]
 
-    def __init__(self):
-        self.players = [Player("Jack"), Player("Phoebe")]
+    def __init__(self, screen, players):
+        self.players = players
         self.current_player = 0  # Index of the current player
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
         self.game_started = True
         self.round_played = False
         self.game_finished = False
-        self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
+        self.screen = screen
         self.game_name = Text("YAHTZEE", C.FONT_SIZE,  C.BLACK_COLOR, C.YAHTZEE_X, C.YAHTZEE_Y)
         self.player_name = Text(self.players[self.current_player].name, C.FONT_SIZE, C.BLACK_COLOR, C.PLAYER_X,
                                 C.PLAYER_Y)
@@ -469,5 +469,7 @@ class YahtzeeGame(object):
 
 
 if __name__ == "__main__":
-    game = YahtzeeGame()
+    players = [Player("Nixie"), Player("Lyla")]
+    screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
+    game = YahtzeeGame(screen, players)
     game.start_game()

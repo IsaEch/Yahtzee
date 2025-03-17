@@ -1,12 +1,14 @@
 import Constants as C
 from Text import Text
 from Button import Button
+from NameScreen import NameScreen
 import pygame
 
 class Title(object):
 
-    def __init__(self, screen):
-        self.screen = screen
+    def __init__(self):
+        self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
+        pygame.display.set_caption("Yahtzee")
         self.title = Text("Yahtzee", C.TITLE_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.TITLE_Y, centered=True)
         self.subtitle = Text("Use the arrow keys to adjust the total number of players", C.SUBTITLE_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2,
                              C.SUBTITLE_Y, centered=True)
@@ -42,6 +44,8 @@ class Title(object):
                         # Switch to the player name screen
                         if button == self.play_button:
                             running = False
+                            name_screen = NameScreen(self.screen, self.player_count)
+                            name_screen.game_loop()
                         # Decrease the player count
                         elif button == self.decrease_button:
                             if self.player_count > 2:
@@ -82,8 +86,6 @@ class Title(object):
 
 if __name__ == "__main__":
     pygame.init()
-    screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
-    pygame.display.set_caption("Yahtzee")
-    title = Title(screen)
+    title = Title()
     title.game_loop()
 
