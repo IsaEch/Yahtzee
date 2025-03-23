@@ -4,14 +4,15 @@ from Button import Button
 from NameScreen import NameScreen
 import pygame
 
+
 class Title(object):
 
     def __init__(self):
         self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
         pygame.display.set_caption("Yahtzee")
         self.title = Text("Yahtzee", C.TITLE_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.TITLE_Y, centered=True)
-        self.subtitle = Text("Use the arrow keys to adjust the total number of players", C.SUBTITLE_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2,
-                             C.SUBTITLE_Y, centered=True)
+        self.subtitle = Text("Use the arrow keys to adjust the total number of players", C.SUBTITLE_SIZE,
+                             C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.SUBTITLE_Y, centered=True)
         self.play_button = Button(C.PLAY_X, C.PLAY_Y, C.PLAY_WIDTH, C.PLAY_HEIGHT, "Play", C.FONT, C.GREY_COLOR,
                                   C.WHITE_COLOR)
         self.player_count = 3
@@ -22,7 +23,6 @@ class Title(object):
         self.num_box = pygame.Rect(C.DECREASE_X + C.DECREASE_WIDTH, C.DECREASE_Y, C.INCREASE_X - C.DECREASE_X
                                    - C.DECREASE_WIDTH, C.INCREASE_HEIGHT)
         self.buttons = [self.play_button, self.decrease_button, self.increase_button]
-
 
     def game_loop(self):
         """Runs the game loop for the title screen"""
@@ -62,7 +62,6 @@ class Title(object):
                         self.increase_button.disabled = True
                     else:
                         self.increase_button.disabled = False
-
             self.draw()
 
     def draw(self):
@@ -83,9 +82,7 @@ class Title(object):
         pygame.display.flip()
 
 
-
 if __name__ == "__main__":
     pygame.init()
     title = Title()
     title.game_loop()
-
