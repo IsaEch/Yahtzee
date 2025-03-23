@@ -62,7 +62,6 @@ class ScoreCard(object):
     def add_yahztee_bonus(self):
         """Adds 100 points to the Yahtzee bonus"""
         self.score[18][6] += 100
-        print("Yahtzee Bonus added", self.score[18][6])
 
     def update_grand_total(self):
         """Update the grand total of both upper and lower sections with bonuses"""

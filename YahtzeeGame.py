@@ -24,7 +24,7 @@ class YahtzeeGame(object):
         self.screen = screen
         self.game_name = Text("YAHTZEE", C.FONT_SIZE,  C.BLACK_COLOR, C.YAHTZEE_X, C.YAHTZEE_Y)
         self.player_name = Text(self.players[self.current_player].name, C.FONT_SIZE, C.BLACK_COLOR, C.PLAYER_X,
-                                C.PLAYER_Y)
+                                C.PLAYER_Y, right_justified=True)
         pygame.display.set_caption(C.CAPTION)
         pygame.display.background = C.BACKGROUND_COLOR
         self.roll_button = Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.ROLL_WIDTH, C.ROLL_HEIGHT, "Roll",
@@ -68,8 +68,7 @@ class YahtzeeGame(object):
                     self.game_started = False
                 for button in self.buttons:
                     if button.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN:
-                        print("Button clicked")     # Placeholder for now; Used for testing
-                        if button == self.roll_button and not button.disabled:
+                        if button == self.roll_button and not button.disabled and len(self.dice) > 0:
                             button.disabled = True
                             self.game_text.update_message("Rolling the dice.")
                             self.add_roll_count()
@@ -80,9 +79,10 @@ class YahtzeeGame(object):
                             self.rolling_dice = True
                             for die in self.dice:   # Start the animation for each di
                                 die.start_animation()
+                        elif button == self.roll_button and not button.disabled:
+                            self.game_text.update_message("There are no dice to roll.")
                         elif not button.disabled and not self.round_played and self.has_rolled:
                             self.score_category(button, self.players[self.current_player].score_card)
-                            print("This is a category button")    # Placeholder for now; Used for testing
                 for die in self.dice:   # Used to move the di from the main area to the hold box
                     if (die.is_clicked() and event.type == pygame.MOUSEBUTTONDOWN and not self.rolling_dice
                             and self.has_rolled):
@@ -116,13 +116,11 @@ class YahtzeeGame(object):
             if self.switch_button.is_clicked():
                 if self.check_score_card_filled():
                     self.game_finished = True
-                    print("The game as finished")
                     self.game_started = False
                     results_screen = ResultsScreen(self.screen, self.players)
                     results_screen.game_loop()
                 else:
                     self.switch_player()
-            # elif self.switch_button.is_clicked() and self.game_finished:
             self.dice_sprites.update()
             self.draw_game()
             pygame.display.flip()
@@ -237,7 +235,7 @@ class YahtzeeGame(object):
     def draw_score_table(self):
         """Draws a 2d table on the screen to display the total score for each player"""
         num_players = len(self.players)
-        table_width = C.ST_CELL_WIDTH * num_players
+        table_width = C.ST_CELL_WIDTH * num_players + (num_players - 1) * C.CELL_PADDING  # Add padding between cells
         table_height = C.ST_CELL_HEIGHT * 2
         center_x = C.SCORE_TABLE_X  # Center the table on the screen
         start_x = center_x - (table_width // 2)
@@ -247,14 +245,18 @@ class YahtzeeGame(object):
         adjusted_start_x = start_x - C.FONT_SIZE
 
         # Draw the white box behind the score table
-        pygame.draw.rect(self.screen, C.SCORE_CARD_COLOR, (adjusted_start_x, start_y, table_width + C.FONT_SIZE, table_height))
+        pygame.draw.rect(self.screen, C.SCORE_CARD_COLOR, (adjusted_start_x, start_y, table_width + C.FONT_SIZE,
+                                                           table_height))
 
         for index, player in enumerate(self.players):
             # Get the first letter of the player's name
-            initial = player.name[0]    # Get the first letter of the player's name
-            initial_text = Text(initial, C.FONT_SIZE, C.BLACK_COLOR, start_x + index * C.ST_CELL_WIDTH, start_y)
+            initial = player.name[0]  # Get the first letter of the player's name
+            initial_text = Text(initial, C.FONT_SIZE, C.BLACK_COLOR,
+                                start_x + index * (C.ST_CELL_WIDTH + C.CELL_PADDING),
+                                start_y + C.ST_TEXT_Y_OFFSET)
             # Get the player's score and draw it
-            score_text = Text(str(player.score_card.score[21][6]), C.FONT_SIZE, C.BLACK_COLOR, start_x + index * C.ST_CELL_WIDTH, start_y + C.ST_CELL_HEIGHT)
+            score_text = Text(str(player.score_card.score[21][6]), C.FONT_SIZE, C.BLACK_COLOR, start_x + index
+                              * (C.ST_CELL_WIDTH + C.CELL_PADDING), start_y + C.ST_CELL_HEIGHT + C.ST_TEXT_Y_OFFSET)
             initial_text.draw(self.screen)
             score_text.draw(self.screen)
 
@@ -368,7 +370,6 @@ class YahtzeeGame(object):
             card.update_grand_upper_total()    # Update the grand upper total
             card.update_grand_total()
 
-
     def upper_section(self, dice_values, num):
         """Determines the score for the upper section of the score card and returns the score"""
         count = 0
@@ -417,6 +418,7 @@ class YahtzeeGame(object):
             self.release_die(die)
         self.update_dice_positions(self.dice, self.main_coordinates)    # Update the dice positions for the main area
         self.update_dice_positions(self.hold_box, self.hold_coordinates)    # Update the hold box positions
+        self.game_text.update_message("Click roll to start the turn")
 
         self.fill_screen_transition()    # Transition effect for the game
         self.draw_next_player_name(player.name)    # Draw the next player's name on the screen

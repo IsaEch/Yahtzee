@@ -1,6 +1,5 @@
 import Constants as C
 from pygame import display
-import pygame
 from Text import Text
 
 
@@ -67,10 +66,8 @@ class ResultsScreen(object):
 if __name__ == "__main__":
     from pygame import init
     from Player import Player
-    from YahtzeeGame import YahtzeeGame
     import pygame
     init()
-    game = YahtzeeGame()
     p1 = Player("Nixie")
     p2 = Player("Lyla")
     p1.score_card.score[21][6] = 100
@@ -78,6 +75,6 @@ if __name__ == "__main__":
     players = [p1, p2]
     players.sort(key=lambda x: x.score, reverse=True)
     screen = display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
-    results = ResultsScreen(game.screen, players)
+    results = ResultsScreen(screen, players)
     results.game_loop()
 

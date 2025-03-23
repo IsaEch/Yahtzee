@@ -19,7 +19,6 @@ class NameScreen(object):
         self.player_count = player_count
         self.player_list = []
 
-
     def game_loop(self):
         """Runs the game loop for the player name screen"""
         running = True
@@ -28,15 +27,14 @@ class NameScreen(object):
                 if event.type == pygame.QUIT:
                     running = False
                 self.name_box.handle_event(event)
-                if event.type == pygame.MOUSEBUTTONDOWN and self.enter_button.is_clicked():
-                    name = self.name_box.text
+                if event.type == pygame.MOUSEBUTTONDOWN and self.enter_button.is_clicked() and self.name_box.text:
+                    name = self.name_box.text.capitalize()
                     player = Player(name)
                     self.player_list.append(player)
                     if len(self.player_list) == self.player_count:
-                            running = False
-                            game = YahtzeeGame(self.screen, self.player_list)
-                            game.start_game()
-
+                        running = False
+                        game = YahtzeeGame(self.screen, self.player_list)
+                        game.start_game()
                     else:
                         self.update_message()
                     self.name_box.clear_text()  # Clears text box after clicking enter
@@ -48,6 +46,10 @@ class NameScreen(object):
         self.title.draw(self.screen)
         self.name_box.draw(self.screen)
         self.enter_button.draw(self.screen)
+        if self.enter_button.is_hovered():
+            self.enter_button.color = C.LIGHT_GREY_COLOR
+        else:
+            self.enter_button.color = C.GREY_COLOR
         pygame.display.flip()
 
     def update_message(self):
