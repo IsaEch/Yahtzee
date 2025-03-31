@@ -1,4 +1,5 @@
 from pygame import font as Font
+
 class Text(object):
 
     def __init__(self, message: str, size: int, color: tuple, x: int, y: int, centered=False, right_justified=False):
