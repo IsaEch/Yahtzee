@@ -57,6 +57,8 @@ class YahtzeeGame(object):
             self.game_clock = pygame.time.Clock()
             self.start_time = 0     # Placeholder for the start time of the dice roll animation
             self.wait_time = 0      # Placeholder for the amount of time to wait for the dice roll animation
+        self.initial_coord = []
+        self.created_initial_coord = False
 
     def start_game(self):
         """The main game loop that control the entire game. It handles the events, updates, and drawing of the game"""
@@ -207,7 +209,7 @@ class YahtzeeGame(object):
                 y = C.CELL_HEIGHT * row + C.SCORE_CARD_OFFSET + C.VALUES_OFFSET
                 self.screen.blit(cell_text, (x, y))
 
-        # Cover1--Transparent rectangle to cover the sectios of the upper section that are not to be selected
+        # Cover1--Transparent rectangle to cover the sections of the upper section that are not to be selected
         transparent_rect = pygame.Surface((C.COVER1_WIDTH, C.COVER1_HEIGHT), pygame.SRCALPHA)
         transparent_rect.fill((*C.GREY_COLOR, 128))  # 128 is the alpha value for 50% transparency
         self.screen.blit(transparent_rect, (C.COVER1_X, C.COVER1_Y))
@@ -231,6 +233,25 @@ class YahtzeeGame(object):
         self.roll_counter_text.update_message("Roll " + str(self.current_roll))
         # Draw the score_table
         self.draw_score_table()
+        # Draw the tool tip when hovered
+        self.show_tooltip()
+
+    def show_tooltip(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for n, (x, y) in enumerate(self.initial_coord):
+            if x < mouse_x < x + C.TOOLTIP_RANGE_X and y < mouse_y < y + C.TOOLTIP_RANGE_Y:
+                tooltip_text = self.players[n].name
+                tooltip = Text(tooltip_text, C.FONT_SIZE, C.BLACK_COLOR, mouse_x + C.TOOLTIP_RANGE_X, mouse_y)
+                text_surface = tooltip.font.render(tooltip_text, True, C.BLACK_COLOR)
+                text_width = text_surface.get_width()
+                text_height = text_surface.get_height()
+
+                # Draw a translucent white rectangle behind the tooltip
+                tooltip_rect = pygame.Surface((text_width, text_height), pygame.SRCALPHA)
+                tooltip_rect.fill(C.WHITE_COLOR)  # White with 50% transparency
+                self.screen.blit(tooltip_rect, (mouse_x + C.TOOLTIP_RANGE_X, mouse_y))
+                tooltip.draw(self.screen)
+
 
     def draw_score_table(self):
         """Draws a 2d table on the screen to display the total score for each player"""
@@ -249,16 +270,19 @@ class YahtzeeGame(object):
                                                            table_height))
 
         for index, player in enumerate(self.players):
+            x = start_x + index * (C.ST_CELL_WIDTH + C.CELL_PADDING)
+            y = start_y + C.ST_TEXT_Y_OFFSET
             # Get the first letter of the player's name
             initial = player.name[0]  # Get the first letter of the player's name
             initial_text = Text(initial, C.FONT_SIZE, C.BLACK_COLOR,
-                                start_x + index * (C.ST_CELL_WIDTH + C.CELL_PADDING),
-                                start_y + C.ST_TEXT_Y_OFFSET)
+                                x, y)
             # Get the player's score and draw it
-            score_text = Text(str(player.score_card.score[21][6]), C.FONT_SIZE, C.BLACK_COLOR, start_x + index
-                              * (C.ST_CELL_WIDTH + C.CELL_PADDING), start_y + C.ST_CELL_HEIGHT + C.ST_TEXT_Y_OFFSET)
+            score_text = Text(str(player.score_card.score[21][6]), C.FONT_SIZE, C.BLACK_COLOR, x,  y + C.ST_CELL_HEIGHT)
+            if not self.created_initial_coord:
+                self.initial_coord.append((x, y))
             initial_text.draw(self.screen)
             score_text.draw(self.screen)
+        self.created_initial_coord = True
 
     def create_buttons(self):
         """Creates the buttons for the scorecard that the user can use to select the category for each round.
@@ -445,7 +469,7 @@ class YahtzeeGame(object):
             pygame.display.flip()
 
     def undo_screen_transition(self):
-        """Undoes the screen transition effect bu gradually decreases the fill from left to right"""
+        """Undoes the screen transition effect but gradually decreases the fill from left to right"""
         self.switch_button.hidden = True    # Hide the switch button before the transition is complete
         for n in range(C.SCREEN_WIDTH):
             self.draw_game()    # Redraw the game to show the changes
