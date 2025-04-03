@@ -15,6 +15,11 @@ class YahtzeeGame(object):
                     "Yahtzee", "Chance"]
 
     def __init__(self, screen, players):
+        """Initializes the game with the players, dice, and buttons
+        :arg:
+            :param screen: The screen to display the game on
+            :param players: The list of players to play the game--comes from the NameScreen
+            """
         self.players = players
         self.current_player = 0  # Index of the current player
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
@@ -30,7 +35,7 @@ class YahtzeeGame(object):
         self.roll_button = Button(C.ROLL_BUTTON_X, C.ROLL_BUTTON_Y, C.ROLL_WIDTH, C.ROLL_HEIGHT, "Roll",
                                 C.FONT, C.GREY_COLOR, C.WHITE_COLOR)
         self.switch_button = Button(C.NEXT_BUTTON_X, C.NEXT_BUTTON_Y, C.NEXT_WIDTH, C.NEXT_HEIGHT, "Next", C.FONT,
-                                    C.GREY_COLOR, C.WHITE_COLOR, hidden=True)
+                                    C.GREY_COLOR, C.WHITE_COLOR, hidden=True, disabled=True)
         self.buttons = [self.roll_button, self.switch_button]
         self.dice_sprites = pygame.sprite.Group()   # Create a sprite group for the dice
         self.dice = []  # List to hold the dice objects that can be rolled
@@ -115,7 +120,7 @@ class YahtzeeGame(object):
             if self.round_played and (pygame.time.get_ticks() - self.start_time) >= C.SWITCH_WAIT_TIME:
                 self.switch_button.hidden = False
                 self.switch_button.disabled = False
-            if self.switch_button.is_clicked():
+            if self.switch_button.is_clicked() and not self.switch_button.disabled:
                 if self.check_score_card_filled():
                     self.game_finished = True
                     self.game_started = False
@@ -251,7 +256,6 @@ class YahtzeeGame(object):
                 tooltip_rect.fill(C.WHITE_COLOR)  # White with 50% transparency
                 self.screen.blit(tooltip_rect, (mouse_x + C.TOOLTIP_RANGE_X, mouse_y))
                 tooltip.draw(self.screen)
-
 
     def draw_score_table(self):
         """Draws a 2d table on the screen to display the total score for each player"""
@@ -464,6 +468,7 @@ class YahtzeeGame(object):
         """Creates a screen transition effect when switching players that gradually fills the screen with a color from
         left to right to indicate the end of the round"""
         # Fill the screen with a solid color from left to right
+        self.switch_button.disabled = True  # Disable the switch button until the transition is complete
         for n in range(C.SCREEN_WIDTH):
             pygame.draw.rect(self.screen, C.BACKGROUND_COLOR, (0, 0, n, C.SCREEN_HEIGHT))
             pygame.display.flip()

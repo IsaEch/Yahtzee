@@ -6,11 +6,17 @@ import Constants as C
 class Dice(pygame.sprite.Sprite):
 
     def __init__(self, x: int, y: int):
+        """Initializes the Dice object that will be used to create a dice object on the screen that the user can roll
+        :args:
+            :param x: int: x-coordinate of the dice
+            :param y: int: y-coordinate of the dice
+        """
         super().__init__()
         self.x = x
         self.y = y
         self.frames = self.load_frames()    # Load the dice frames (1, 2, 3, 4, 5, 6; 6 sides of a dice)
         self.current_frame = 0
+        self.current = 0
         self.image = self.frames[self.current_frame]    # Shows the current side of the dice
         self.rect = self.image.get_rect(center=(x, y))  # Position of the dice on the screen
         self.animation_speed = C.ANIMATION_SPEED    # Adjust the animation speed
@@ -30,7 +36,7 @@ class Dice(pygame.sprite.Sprite):
         return frames
 
     def update(self):
-        """Update the dice animation. Controls the speed of the animation"""
+        """Updates the dice animation. Controls the speed of the animation"""
         if self.animation_running:
             now = pygame.time.get_ticks()
             if now - self.last_update > self.animation_speed * 1000:
@@ -43,16 +49,27 @@ class Dice(pygame.sprite.Sprite):
         self.animation_running = True
 
     def stop_animation(self, frame):
-        """Stop the animation on a specific frame to show what was rolled"""
+        """Stop the animation on a specific frame to show what was rolled
+
+        :param frame: The frame to stop the animation on
+        """
         self.animation_running = False
         self.current = frame - 1
         self.image = self.frames[self.current]
 
     def roll(self):
-        """Roll the dice and stop the animation on a frame that matches the random int"""
+        """Roll the dice and stop the animation on a frame that matches the random int
+
+        :returns:
+            int: The value of the dice roll/random int
+        """
         self.value = random.randint(1, 6)
         return self.value
 
     def is_clicked(self):
-        """Check if the dice is clicked"""
+        """Check if the dice is clicked
+
+        :returns:
+            bool: True if the dice is clicked, False otherwise
+        """
         return self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]

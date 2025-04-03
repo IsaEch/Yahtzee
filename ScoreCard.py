@@ -4,9 +4,13 @@ class ScoreCard(object):
                         12: "4 of a kind", 13: "Full House", 14: "Small Straight", 15: "Large Straight", 16: "Yahtzee",
                         17: "Chance", 18: "Yahtzee Bonus", 19: "TOTAL: Upper", 20: "TOTAL: Lower",
                         21: "GRAND TOTAL"}
+
     def __init__(self):
         """Creates a 2d list that represents the Yahtzee scorecard to keep track of the player's score. It also has a
-        dictionary that remembers when a category is filled"""
+        dictionary that remembers when a category is filled
+        :args:
+            :param score: list: 2D list to store the scorecard
+        """
         # Create a 2D list to store the scorecard
         self.score = [[0]*7 for _ in range(22)]
         for n in range(22):
@@ -20,15 +24,27 @@ class ScoreCard(object):
         self.filled = {i: True if i in [0, 7, 8, 9, 10, 19, 20, 21] else False for i in range(22)}
 
     def length(self):
-        """Returns the length of the scorecard"""
+        """Gets the length of the scorecard
+
+        :returns:
+            int: The length of the scorecard"""
         return len(self.score)
 
     def width(self):
-        """Returns the width of the scorecard"""
+        """Gets the width of the scorecard
+
+        :returns:
+            int: The width of the scorecard
+        """
         return len(self.score[0])
 
     def set_category(self, category_row: int, score: int, dice_list: list):
-        """Set the score for a specific category on the scorecard and calls the update methods for the totals"""
+        """Sets the score for a specific category on the scorecard and calls the update methods for the totals
+
+        :param category_row: The row of the category to set the score for
+        :param score: The score to set for the category
+        :param dice_list: The list of dice values to set for the category
+        """
         for n in range(1, 6):
             self.score[category_row][n] = dice_list[n-1]
         self.score[category_row][6] = score
@@ -42,7 +58,9 @@ class ScoreCard(object):
         self.update_bonus()
 
     def update_upper_total(self, score: int):
-        """Update the upper total. Not to be confused with the total score with bonus"""
+        """Updates the upper total. Not to be confused with the total score with bonus
+
+        :param score: The score to add to the upper total"""
         self.score[7][6] += score
 
     def update_grand_upper_total(self):
@@ -66,10 +84,6 @@ class ScoreCard(object):
     def update_grand_total(self):
         """Update the grand total of both upper and lower sections with bonuses"""
         self.score[21][6] = self.score[19][6] + self.score[20][6] + self.score[18][6]
-
-    def __str__(self):
-        """"Currently only using for debugging/development"""
-        return f"{self.score}"
 
 
 if __name__ == '__main__':
