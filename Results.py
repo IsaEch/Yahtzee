@@ -1,11 +1,15 @@
 import Constants as C
-from pygame import display
+import pygame
 from Text import Text
 
 
 class ResultsScreen(object):
 
     def __init__(self, screen, players):
+        """Initializes the ResultsScreen object with the screen and player list
+        :args:
+            :param screen: pygame.Surface: screen to display the results screen on
+            :param players: list: list of Player objects to display the results for"""
         self.screen = screen
         self.players = players
         self.title = Text("Results", C.RESULTS_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.RESULTS_Y,
@@ -54,7 +58,7 @@ class ResultsScreen(object):
                          * row_height)
             name.draw(self.screen)
             score.draw(self.screen)
-        display.flip()
+        pygame.display.flip()
 
     def set_player_scores(self):
         """"Sets the final scores for each player"""
@@ -74,7 +78,6 @@ if __name__ == "__main__":
     p2.score_card.score[21][6] = 200
     players = [p1, p2]
     players.sort(key=lambda x: x.score, reverse=True)
-    screen = display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
     results = ResultsScreen(screen, players)
     results.game_loop()
-
