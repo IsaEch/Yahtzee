@@ -10,11 +10,10 @@ class Title(object):
     def __init__(self):
         """Initializes the Title object with the screen and buttons. The first screen the user sees when running
         the program from main.py"""
-
         self.screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
         pygame.display.set_caption("Yahtzee")
         self.title = Text("Yahtzee", C.TITLE_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.TITLE_Y, centered=True)
-        self.subtitle = Text("Use the arrow keys to adjust the total number of players", C.SUBTITLE_SIZE,
+        self.subtitle = Text("Click the arrow buttons to adjust the total number of players", C.SUBTITLE_SIZE,
                              C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.SUBTITLE_Y, centered=True)
         self.play_button = Button(C.PLAY_X, C.PLAY_Y, C.PLAY_WIDTH, C.PLAY_HEIGHT, "Play", C.FONT, C.GREY_COLOR,
                                   C.WHITE_COLOR)

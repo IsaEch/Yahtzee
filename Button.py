@@ -5,20 +5,6 @@ class Button(object):
 
     def __init__(self, x: int, y: int, width: int, height: int, text: str, font: pygame.font, color: tuple,
                  text_color: tuple, disabled=False, transparent=False, hidden=False):
-        """Initializes the Button object that will be used to create buttons on the screen to interact with the user
-        :args:
-            :param x: int: x-coordinate of the button
-            :param y: int: y-coordinate of the button
-            :param width: int: width of the button
-            :param height: int: height of the button
-            :param text: str: text to be displayed on the button
-            :param font: pygame.font: font to be used for the text
-            :param color: tuple: color of the button
-            :param text_color: tuple: color of the text
-            :param disabled: bool: True if the button is to be disabled, False otherwise
-            :param transparent: bool: True if the button is to be transparent, False otherwise
-            :param hidden: bool: True if the button is to be hidden, False otherwise
-        """
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, width, height)

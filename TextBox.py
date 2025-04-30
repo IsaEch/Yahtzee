@@ -5,14 +5,7 @@ import Constants as C
 class TextBox(object):
 
     def __init__(self, x, y, width, height, font):
-        """Initializes the TextBox object that will be used to create a text box on the screen for user input
-        :args:
-            :param x: int: x-coordinate of the text box
-            :param y: int: y-coordinate of the text box
-            :param width: int: width of the text box
-            :param height: int: height of the text box
-            :param font: pygame.font: font to be used for the text
-        """
+        """Initializes the TextBox object that will be used to create a text box on the screen for user input"""
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, width, height)
