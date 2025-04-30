@@ -1,7 +1,11 @@
 
 ## 📦 Download
-
+**Source File**
 👉 [Download Yahtzee Project (v1.0)](https://github.com/IsaEch/Yahtzee/releases/download/V1.0/Yahtzee-main.zip)
+
+**Packaged Files**
+👉  Mac - [Mac](https://github.com/IsaEch/Yahtzee/releases/tag/v.1-Mac)
+👉  Windows - [Windows](https://github.com/IsaEch/Yahtzee/releases/tag/v.1-Windows)
 
 # Yahtzee
 **Game Controls**:
