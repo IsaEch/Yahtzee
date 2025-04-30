@@ -1,4 +1,3 @@
-**Download Link** https://github.com/IsaEch/Yahtzee.git
 
 # Yahtzee
 **Game Controls**:
