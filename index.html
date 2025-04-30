@@ -4,93 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Project</title>
-    <style>
-        /* Retain the old styles */
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            color: #333;
-        }
-
-        header h1 {
-            color: #2c3e50;
-        }
-
-        #readme {
-            margin-top: 20px;
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
-        }
-
-        #readme h2 {
-            color: #2980b9;
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.9em;
-            color: #777;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Add some space around the download link */
-        #download {
-            margin-top: 20px;
-            padding: 10px 0;
-            text-align: center;
-        }
-
-        #download a {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        #download a:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css">
 </head>
 <body>
 
-    <header>
-        <h1>My Project</h1>
+     <header>
+        <h1>Your Project Title</h1>
     </header>
+  
+    <h1>Welcome to my Yahtzee Capstone Project!</h1>
+    <p>You can download the project code from the link below:</p>
+    <a href="https://github.com/isaech/Yahtzee/archive/refs/heads/main.zip" download>Download Project Code</a>
 
-    <h1>Welcome to Yahtzee Capstone Project!</h1>
-    <p>This project is a Yahtzee game created as part of a capstone project. Below, you can find the download link to access the code:</p>
-
-    <!-- Download Link Section -->
-    <section id="download">
-        <a href="https://github.com/isaech/Yahtzee/archive/refs/heads/main.zip" download>Download Project Code</a>
-    </section>
-
-    <!-- README Section -->
     <section id="readme">
-        <h2>README</h2>
-        <div id="readme-content">
-            <!-- README content will be dynamically inserted here -->
-        </div>
+      <h2>README</h2>
+      <div id="readme-content" class="markdown-body">
+          <!-- Your README content will go here -->
+      </div>
     </section>
 
-    <footer>
+     <footer>
         <p>© 2025 Your Name</p>
     </footer>
 
     <script>
-        // Fetch README file and display its content
         fetch('README.md')
             .then(response => response.text())
             .then(text => {
@@ -98,7 +35,6 @@
             })
             .catch(err => console.error('Error loading README:', err));
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
