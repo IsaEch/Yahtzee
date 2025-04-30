@@ -1,5 +1,6 @@
 from ScoreCard import ScoreCard
 
+
 class Player(object):
 
     def __init__(self, name: str):
@@ -9,4 +10,4 @@ class Player(object):
 
     def set_final_score(self):
         """Sets the final score for the player"""
-        self.score = self.score_card.score[21][6]
+        self.score = self.score_card.score[21][6]   # The total score cell in the scorecard

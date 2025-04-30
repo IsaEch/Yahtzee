@@ -6,10 +6,7 @@ from Text import Text
 class ResultsScreen(object):
 
     def __init__(self, screen, players):
-        """Initializes the ResultsScreen object with the screen and player list
-        :args:
-            :param screen: pygame.Surface: screen to display the results screen on
-            :param players: list: list of Player objects to display the results for"""
+        """Initializes the ResultsScreen object with the screen and players"""
         self.screen = screen
         self.players = players
         self.title = Text("Results", C.RESULTS_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.RESULTS_Y,
@@ -68,16 +65,16 @@ class ResultsScreen(object):
 
 
 if __name__ == "__main__":
-    from pygame import init
     from Player import Player
-    import pygame
-    init()
-    p1 = Player("Nixie")
-    p2 = Player("Lyla")
-    p1.score_card.score[21][6] = 100
-    p2.score_card.score[21][6] = 200
-    players = [p1, p2]
+    p1 = Player("Carly")
+    p2 = Player("Will")
+    p3 = Player("Leo")
+    p1.score_card.score[21][6] = 254
+    p2.score_card.score[21][6] = 327
+    p3.score_card.score[21][6] = 327
+    players = [p1, p2, p3]
     players.sort(key=lambda x: x.score, reverse=True)
     screen = pygame.display.set_mode((C.SCREEN_WIDTH, C.SCREEN_HEIGHT))
+    pygame.display.set_caption("Yahtzee")
     results = ResultsScreen(screen, players)
     results.game_loop()

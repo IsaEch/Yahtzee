@@ -15,11 +15,7 @@ class YahtzeeGame(object):
                     "Yahtzee", "Chance"]
 
     def __init__(self, screen, players):
-        """Initializes the game with the players, dice, and buttons
-        :arg:
-            :param screen: The screen to display the game on
-            :param players: The list of players to play the game--comes from the NameScreen
-            """
+        """Initializes the game with the players, dice, and buttons"""
         self.players = players
         self.current_player = 0  # Index of the current player
         self.current_roll = 0   # Number of rolls for the current player; Max of 3 rolls per turn
@@ -242,6 +238,7 @@ class YahtzeeGame(object):
         self.show_tooltip()
 
     def show_tooltip(self):
+        """Shows a tooltip with the player's name when hovered over the score table"""
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for n, (x, y) in enumerate(self.initial_coord):
             if x < mouse_x < x + C.TOOLTIP_RANGE_X and y < mouse_y < y + C.TOOLTIP_RANGE_Y:

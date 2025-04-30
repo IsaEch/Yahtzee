@@ -7,10 +7,7 @@ class ScoreCard(object):
 
     def __init__(self):
         """Creates a 2d list that represents the Yahtzee scorecard to keep track of the player's score. It also has a
-        dictionary that remembers when a category is filled
-        :args:
-            :param score: list: 2D list to store the scorecard
-        """
+        dictionary that remembers when a category is filled"""
         # Create a 2D list to store the scorecard
         self.score = [[0]*7 for _ in range(22)]
         for n in range(22):

@@ -10,11 +10,7 @@ from YahtzeeGame import YahtzeeGame
 class NameScreen(object):
 
     def __init__(self, screen, player_count=2):
-        """Initializes the NameScreen object with the screen and player count
-        :args:
-            :param screen: pygame.Surface: screen to display the player name screen on
-            :param player_count: int: number of players in the game, default is 2 in case the player count is not
-            provided by the user in an unknown situation"""
+        """Initializes the NameScreen object with the screen and player count"""
         self.screen = screen
         self.title = Text("Enter Player 1's Name", C.NS_SIZE, C.WHITE_COLOR, C.SCREEN_WIDTH//2, C.NS_TITLE_Y,
                           centered=True)
