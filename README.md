@@ -1,4 +1,8 @@
 
+## 📦 Download
+
+👉 [Download Yahtzee Project (v1.0)](https://github.com/IsaEch/Yahtzee/releases/download/V1.0/Yahtzee-main.zip)
+
 # Yahtzee
 **Game Controls**:
   •	Mouse: Click to adjust player count, click “Play”, “Roll”, and “Next”, and click on the category to score.
