@@ -6,8 +6,35 @@
     <title>My Project</title>
 </head>
 <body>
-    <h1>Welcome to My Project!</h1>
+
+     <header>
+        <h1>Your Project Title</h1>
+    </header>
+  
+    <h1>Welcome to Yahtzee Capstone Project!</h1>
     <p>You can download the project code from the link below:</p>
     <a href="https://github.com/isaech/Yahtzee/archive/refs/heads/main.zip" download>Download Project Code</a>
+
+      <section id="readme">
+        <h2>README</h2>
+        <div id="readme-content">
+            <!-- You can dynamically insert the README content here -->
+        </div>
+    </section>
+
+     <footer>
+        <p>© 2025 Your Name</p>
+    </footer>
+
+    <script>
+        // Fetch README file and display its content
+        fetch('README.md')
+            .then(response => response.text())
+            .then(text => {
+                document.getElementById('readme-content').innerHTML = marked.parse(text);
+            })
+            .catch(err => console.error('Error loading README:', err));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
